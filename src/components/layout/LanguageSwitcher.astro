@@ -1,0 +1,36 @@
+---
+import { getAlternateLocale } from '../../i18n/utils';
+import { t } from '../../i18n/ui-strings';
+import type { Locale } from '../../i18n/config';
+
+/*
+  Per the explicit requirement: switching language should land on the
+  equivalent page when one exists (alternateHref is resolved by the
+  caller using resolveAlternateEntry from content-pairing.ts). When it
+  doesn't exist, the "safest and most user-friendly fallback" implemented
+  here is the alternate language's homepage — never a hard failure, and
+  not silently pretending a translation exists. The gap is disclosed to
+  assistive technology via the accessible name, not just visually.
+*/
+export interface Props {
+  locale: Locale;
+  alternateHref: string | null;
+  alternateLabel: string;
+  compact?: boolean;
+}
+
+const { locale, alternateHref, alternateLabel, compact = false } = Astro.props;
+const alternateLocale = getAlternateLocale(locale);
+const hasDirectEquivalent = alternateHref !== null;
+const href = alternateHref ?? `/${alternateLocale}/`;
+---
+
+<a
+  href={href}
+  hreflang={alternateLocale}
+  lang={alternateLocale}
+  class="nav-link"
+  aria-label={hasDirectEquivalent ? alternateLabel : `${alternateLabel} — ${t(locale, 'translationUnavailable')}`}
+>
+  <span aria-hidden="true">{compact ? alternateLocale.toUpperCase() : alternateLabel}</span>
+</a>

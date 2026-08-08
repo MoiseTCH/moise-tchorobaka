@@ -1,0 +1,48 @@
+---
+/*
+  Custom line icons, one per service — per the approved design system
+  (Section 10): 1.5px stroke, rounded caps, no fill, single consistent
+  family. Deliberately not a robot/circuit-board icon for AI Services —
+  the design system explicitly calls out avoiding that cliché so AI
+  Services doesn't visually fork into a separate "tech brand." This is a
+  decorative graphic only — no image asset, no claim to depict real work,
+  purely a small illustration built from the same brand tokens as
+  everything else.
+*/
+export interface Props {
+  name: 'translation' | 'language_training' | 'cv_writing' | 'website' | 'ai_services';
+  class?: string;
+}
+
+const { name, class: className = 'h-6 w-6' } = Astro.props;
+
+const paths: Record<Props['name'], string[]> = {
+  translation: [
+    'M4 5h11a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H9l-3 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z',
+    'M13 17h4l3 3v-3h1a2 2 0 0 0 2-2v-4',
+  ],
+  language_training: [
+    'M12 6.5c-1.5-1.2-3.5-1.8-6-1.8v13c2.5 0 4.5.6 6 1.8 1.5-1.2 3.5-1.8 6-1.8v-13c-2.5 0-4.5.6-6 1.8Z',
+    'M12 6.5v13',
+  ],
+  cv_writing: ['M8 3h6l4 4v13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z', 'M14 3v4h4', 'M9 14l2 2 4-4'],
+  website: ['M3 4.5h18v15H3Z', 'M3 9h18', 'M6.5 6.75h.01', 'M9 6.75h.01'],
+  ai_services: ['M12 3v3', 'M12 18v3', 'M3 12h3', 'M18 12h3'],
+};
+
+const isAi = name === 'ai_services';
+---
+
+<svg
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.5"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  class={className}
+  aria-hidden="true"
+>
+  {paths[name].map((d) => <path d={d} />)}
+  {isAi && <circle cx="12" cy="12" r="4" />}
+</svg>

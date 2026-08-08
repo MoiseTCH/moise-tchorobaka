@@ -1,0 +1,72 @@
+---
+import '../styles/global.css';
+import Container from '../components/ui/Container.astro';
+import Button from '../components/ui/Button.astro';
+
+// A prerendered static 404 has no per-request access to the attempted
+// path (this file renders once at build time), so the intended locale
+// genuinely can't be known server-side. Showing both languages by
+// default — rather than guessing English — is the honest, always-correct
+// choice; the inline script below is a light progressive enhancement
+// that hides whichever language doesn't match the URL the visitor
+// actually landed on, once that's readable client-side.
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/png" href="/logo-icon.png" />
+    <title>Page Not Found · Page non trouvée — Moïse Tchorobaka</title>
+  </head>
+  <body>
+    <main class="flex min-h-screen items-center justify-center py-16">
+      <Container>
+        <div class="mx-auto max-w-[50ch] text-center">
+          <p class="eyebrow justify-center">404</p>
+
+          <div data-lang-block="en" class="mt-4">
+            <h1>Page not found</h1>
+            <p class="prose-measure mx-auto mt-3 text-body-lg">
+              The page you're looking for doesn't exist or may have moved.
+            </p>
+            <div class="mt-5">
+              <Button href="/en/" variant="primary">Back to homepage</Button>
+            </div>
+          </div>
+
+          <div data-lang-block="fr" class="mt-8 border-t border-mist pt-8">
+            <h2>Page non trouvée</h2>
+            <p class="prose-measure mx-auto mt-3 text-body-lg">
+              La page que vous recherchez n'existe pas ou a peut-être été déplacée.
+            </p>
+            <div class="mt-5">
+              <Button href="/fr/" variant="secondary">Retour à l'accueil</Button>
+            </div>
+          </div>
+        </div>
+      </Container>
+    </main>
+
+    <script>
+      // Progressive enhancement only — both language blocks remain fully
+      // visible and functional without this. If the attempted path
+      // starts with /fr/, lead with French instead of showing both languages
+      // with equal weight.
+      if (window.location.pathname.startsWith('/fr/')) {
+        document.documentElement.lang = 'fr';
+        const frBlock = document.querySelector<HTMLElement>('[data-lang-block="fr"]');
+        const enBlock = document.querySelector<HTMLElement>('[data-lang-block="en"]');
+        if (frBlock && enBlock && frBlock.parentElement) {
+          frBlock.classList.remove('mt-8', 'border-t', 'border-mist', 'pt-8');
+          frBlock.classList.add('mt-4');
+          enBlock.classList.add('mt-8', 'border-t', 'border-mist', 'pt-8');
+          enBlock.classList.remove('mt-4');
+          frBlock.parentElement.prepend(frBlock);
+        }
+      }
+    </script>
+  </body>
+</html>

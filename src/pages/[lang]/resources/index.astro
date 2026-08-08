@@ -1,0 +1,65 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Container from '../../../components/ui/Container.astro';
+import Section from '../../../components/sections/Section.astro';
+import Breadcrumbs from '../../../components/sections/Breadcrumbs.astro';
+import ArticleCard from '../../../components/cards/ArticleCard.astro';
+import { getLocaleStaticPaths } from '../../../lib/localeParams';
+import { buildLocalizedPath } from '../../../i18n/utils';
+import { t } from '../../../i18n/ui-strings';
+import { utilityPath } from '../../../lib/routes';
+import { getArticlesByLocale } from '../../../lib/content';
+import type { Locale } from '../../../i18n/config';
+
+export function getStaticPaths() {
+  return getLocaleStaticPaths();
+}
+
+const { lang } = Astro.params as { lang: Locale };
+const articles = await getArticlesByLocale(lang);
+
+const alternateHref = utilityPath(lang === 'en' ? 'fr' : 'en', 'resources');
+const canonicalUrl = utilityPath(lang, 'resources');
+const urlsByLocale = { en: utilityPath('en', 'resources'), fr: utilityPath('fr', 'resources') } as const;
+
+const heading = lang === 'en' ? 'Resources' : 'Ressources';
+const description =
+  lang === 'en'
+    ? 'Practical notes on translation, language learning, writing, and working with AI tools.'
+    : "Notes pratiques sur la traduction, l'apprentissage des langues, la rédaction et l'utilisation des outils d'IA.";
+const emptyStateBody =
+  lang === 'en' ? 'New articles are on the way — check back soon.' : 'De nouveaux articles arrivent bientôt.';
+---
+
+<BaseLayout locale={lang} title={`${heading} | Moïse Tchorobaka`} description={description} canonicalUrl={canonicalUrl} urlsByLocale={urlsByLocale} alternateHref={alternateHref}>
+  <Section spacing="tight">
+    <Container>
+      <Breadcrumbs items={[{ label: t(lang, 'breadcrumbHome'), href: buildLocalizedPath(lang) }, { label: heading }]} />
+    </Container>
+  </Section>
+
+  <Section spacing="default">
+    <Container>
+      <h1>{heading}</h1>
+
+      {articles.length > 0 ? (
+        <div class="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {articles.map((article) => (
+            <ArticleCard
+              article={article}
+              href={buildLocalizedPath(lang, 'resources', article.data.url_slug)}
+              categoryLabel={article.data.pillar_category}
+              dateLabel={article.data.publication_date.toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            />
+          ))}
+        </div>
+      ) : (
+        <p class="prose-measure mt-6 text-body-sm text-graphite">{emptyStateBody}</p>
+      )}
+    </Container>
+  </Section>
+</BaseLayout>

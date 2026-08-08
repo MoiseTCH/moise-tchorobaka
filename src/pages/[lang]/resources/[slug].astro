@@ -1,0 +1,127 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Container from '../../../components/ui/Container.astro';
+import Section from '../../../components/sections/Section.astro';
+import Breadcrumbs from '../../../components/sections/Breadcrumbs.astro';
+import CTABand from '../../../components/sections/CTABand.astro';
+import StructuredData from '../../../components/sections/StructuredData.astro';
+import { articleSchema, breadcrumbSchema } from '../../../lib/schema';
+import { buildLocalizedPath } from '../../../i18n/utils';
+import { resolveAlternateArticle } from '../../../i18n/content-pairing';
+import { t } from '../../../i18n/ui-strings';
+import { utilityPath } from '../../../lib/routes';
+import type { Locale } from '../../../i18n/config';
+import type { CollectionEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const allArticles = await getCollection('articles');
+  return allArticles.map((entry) => ({
+    params: { lang: entry.data.language, slug: entry.data.url_slug },
+    props: { entry },
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<'articles'>;
+}
+
+const { entry } = Astro.props;
+const { lang } = Astro.params as { lang: Locale };
+const { Content: ArticleBody } = await entry.render();
+
+// Pattern B (Articles): an alternate only exists if translation_of is
+// filled in — most articles correctly resolve to null here, per the
+// approved "flagged independence" content model.
+const alternateArticle = await resolveAlternateArticle(entry);
+const alternateLocale: Locale = lang === 'en' ? 'fr' : 'en';
+const alternateHref = alternateArticle
+  ? buildLocalizedPath(alternateLocale, 'resources', alternateArticle.data.url_slug)
+  : null;
+
+const canonicalUrl = buildLocalizedPath(lang, 'resources', entry.data.url_slug);
+const urlsByLocale = {
+  [lang]: canonicalUrl,
+  ...(alternateHref ? { [alternateLocale]: alternateHref } : {}),
+} as Partial<Record<Locale, string>>;
+
+const relatedServiceMatches = await getCollection('services', (e) => e.id === `${lang}/${entry.data.related_service}`);
+const relatedServiceEntry = relatedServiceMatches[0];
+
+const dateLabel = entry.data.publication_date.toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+const readInOtherLabel = alternateHref ? (lang === 'en' ? 'Read this article in French' : 'Lire cet article en anglais') : null;
+const resourcesLabel = lang === 'en' ? 'Resources' : 'Ressources';
+const relatedCtaHeading = relatedServiceEntry
+  ? lang === 'en'
+    ? `Need help with ${relatedServiceEntry.data.title.toLowerCase()}?`
+    : `Besoin d'aide pour ${relatedServiceEntry.data.title.toLowerCase()} ?`
+  : lang === 'en'
+    ? 'Ready to get started?'
+    : 'Prêt à commencer ?';
+const relatedCtaLabel = relatedServiceEntry ? relatedServiceEntry.data.cta_label : (lang === 'en' ? 'Get a Quote' : 'Demander un devis');
+const relatedCtaHref = relatedServiceEntry
+  ? buildLocalizedPath(lang, 'services', relatedServiceEntry.data.url_slug)
+  : utilityPath(lang, 'quote');
+
+const siteUrl = Astro.site ? Astro.site.href : '/';
+const breadcrumbItems = [
+  { label: t(lang, 'breadcrumbHome'), href: buildLocalizedPath(lang) },
+  { label: resourcesLabel, href: utilityPath(lang, 'resources') },
+  { label: entry.data.title },
+];
+const structuredData = [articleSchema(entry, canonicalUrl), breadcrumbSchema(breadcrumbItems, siteUrl)];
+---
+
+<BaseLayout
+  locale={lang}
+  title={entry.data.seo?.seo_title ?? entry.data.title}
+  description={entry.data.seo?.seo_description ?? entry.data.excerpt}
+  canonicalUrl={canonicalUrl}
+  urlsByLocale={urlsByLocale}
+  alternateHref={alternateHref}
+>
+  <StructuredData schema={structuredData} />
+  <Section spacing="tight">
+    <Container>
+      <Breadcrumbs
+        items={[
+          { label: t(lang, 'breadcrumbHome'), href: buildLocalizedPath(lang) },
+          { label: resourcesLabel, href: utilityPath(lang, 'resources') },
+          { label: entry.data.title },
+        ]}
+      />
+    </Container>
+  </Section>
+
+  <Section spacing="default">
+    <Container>
+      <article>
+        <h1>{entry.data.title}</h1>
+        <p class="mt-2 font-mono text-mono text-graphite">{entry.data.author} · {dateLabel}</p>
+
+        <div class="prose-measure markdown-content mt-8">
+          <ArticleBody />
+        </div>
+
+        {readInOtherLabel && alternateHref && (
+          <p class="mt-6">
+            <a href={alternateHref} class="btn-tertiary" hreflang={alternateLocale} lang={alternateLocale}>
+              {readInOtherLabel} →
+            </a>
+          </p>
+        )}
+      </article>
+    </Container>
+  </Section>
+
+  <Section spacing="default">
+    <Container>
+      <CTABand heading={relatedCtaHeading} ctaLabel={relatedCtaLabel} ctaHref={relatedCtaHref} />
+    </Container>
+  </Section>
+</BaseLayout>

@@ -1,0 +1,86 @@
+/*
+  Design tokens — Moïse Tchorobaka
+  Source of truth: the approved visual design system document.
+  Every color, font, spacing, and radius value used anywhere on the site
+  should trace back to a variable defined here — never a hardcoded hex
+  or pixel value inside a component file. Tailwind's theme (see
+  tailwind.config.mjs) reads these same variables rather than duplicating
+  the values, so there is exactly one place to update a token.
+*/
+
+:root {
+  /* ---- Color ----
+     Updated to match the approved logo palette (navy + gold + off-white).
+     Note: the CSS variable/class names below still say "cobalt" and
+     "marigold" — only their VALUES changed, not their names. Renaming
+     the variables themselves would mean editing every component that
+     references them (dozens of files), for zero visual difference. This
+     is flagged here as a cosmetic/internal-naming note only — it has no
+     effect on how the site looks or works. */
+  --color-ink-navy: #0d1b2a;
+  --color-paper: #f2f4f7;
+  --color-cobalt: #1a73e8;
+  --color-marigold: #d98e29;
+  --color-graphite: #333b4a;
+  --color-mist: #dde1e6;
+  --color-cloud: #e9e9e4;
+  --color-teal: #3a7d71;
+  --color-clay: #b3462c;
+
+  /* ---- Typography ---- */
+  --font-display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-body: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+
+  /*
+    Fluid type scale via clamp(), not fixed per-breakpoint sizes.
+    Autonomous decision (see Stage 2 report): this scales continuously
+    with viewport width instead of jumping at fixed breakpoints, which
+    is directly relevant to the bilingual requirement that French text
+    (typically 15-20% longer than English) must never overflow or break
+    a layout — a continuously fluid scale has far fewer "cliff" points
+    where a longer French string can suddenly no longer fit.
+  */
+  --text-h1: clamp(2rem, 1.6rem + 1.6vw, 3rem);
+  --text-h2: clamp(1.75rem, 1.5rem + 1vw, 2.25rem);
+  --text-h3: clamp(1.375rem, 1.2rem + 0.7vw, 1.75rem);
+  --text-h4: clamp(1.1875rem, 1.1rem + 0.3vw, 1.375rem);
+  --text-eyebrow: 0.875rem;
+  --text-body-lg: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+  --text-body: 1rem;
+  --text-body-sm: 0.875rem;
+  --text-mono: 0.8125rem;
+
+  --leading-tight: 1.15;
+  --leading-body: 1.6;
+
+  /* ---- Spacing (4px base unit, per the approved design system) ---- */
+  --space-1: 0.25rem; /* 4px */
+  --space-2: 0.5rem; /* 8px */
+  --space-3: 1rem; /* 16px */
+  --space-4: 1.5rem; /* 24px */
+  --space-5: 2rem; /* 32px */
+  --space-6: 3rem; /* 48px */
+  --space-7: 4rem; /* 64px */
+  --space-8: 6rem; /* 96px */
+
+  /* ---- Radius ---- */
+  --radius-card: 8px;
+  --radius-control: 6px;
+  --radius-pill: 999px;
+
+  /* ---- Elevation ---- */
+  --shadow-hover: 0 4px 16px rgba(13, 27, 42, 0.08);
+
+  /* ---- Borders ---- */
+  --border-thin: 1px solid var(--color-mist);
+  --border-focus: 2px solid var(--color-cobalt);
+
+  /* ---- Breakpoints (documented here for parity with tailwind.config.mjs) --- */
+  --bp-tablet: 600px;
+  --bp-desktop: 1024px;
+  --bp-large: 1440px;
+
+  /* ---- Motion ---- */
+  --transition-base: 150ms ease;
+}

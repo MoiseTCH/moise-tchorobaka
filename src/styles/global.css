@@ -1,0 +1,383 @@
+/*
+  Global stylesheet — Moïse Tchorobaka
+  Not yet imported by any layout (Header/BaseLayout comes in a later stage) —
+  this file establishes the styling foundation those stages will consume.
+*/
+@import "./tokens.css";
+@import "./fonts.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+/* ============================= BASE ============================= */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /*
+    Reduced-motion: disables smooth scrolling and shortens all animation/
+    transition durations to effectively nothing, rather than removing them
+    outright — this keeps state changes (hover, focus) visually confirmed
+    without the motion itself.
+  */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-graphite);
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    line-height: var(--leading-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    color: var(--color-ink-navy);
+    line-height: var(--leading-tight);
+    font-weight: 600;
+    margin: 0;
+  }
+  h1 {
+    font-size: var(--text-h1);
+  }
+  h2 {
+    font-size: var(--text-h2);
+  }
+  h3 {
+    font-size: var(--text-h3);
+    font-weight: 500;
+  }
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-body);
+    color: var(--color-ink-navy);
+    font-weight: 600;
+    margin: 0;
+  }
+  h4 {
+    font-size: var(--text-h4);
+  }
+
+  /*
+    No fixed max-width in ch units was applied to the html element itself —
+    only to body copy blocks via .prose-measure below — so that headings,
+    buttons, and short UI strings never get artificially wrapped or clipped
+    when French text runs longer than the English equivalent.
+  */
+  p {
+    margin: 0;
+  }
+
+  a {
+    color: var(--color-cobalt);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+    transition: color var(--transition-base);
+  }
+  a:hover {
+    color: var(--color-ink-navy);
+  }
+
+  img,
+  svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  ul,
+  ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  button {
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  /*
+    Accessibility floor: a visible focus indicator on every interactive
+    element, never suppressed without a replacement. :focus-visible keeps
+    the outline for keyboard navigation while not showing it on a mouse
+    click, which is the modern, accessible default.
+  */
+  :focus-visible {
+    outline: var(--border-focus);
+    outline-offset: 2px;
+  }
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  ::selection {
+    background-color: var(--color-marigold);
+    color: var(--color-ink-navy);
+  }
+}
+
+/* ============================ COMPONENTS ============================ */
+/*
+  Reusable classes only — no page markup, no Header/Footer/page components.
+  These are the building blocks later stages (Header, Footer, Homepage,
+  Services, etc.) will apply to real markup.
+*/
+
+@layer components {
+  /* --- Layout --- */
+  .container {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: var(--space-4);
+  }
+
+  .prose-measure {
+    max-width: 68ch; /* body-copy line-length cap, per the design system */
+  }
+
+  /*
+    Spacing for rendered Markdown body content (About, Service, Article,
+    Portfolio detail pages) — the base reset zeroes out heading/paragraph
+    margins globally on purpose (so components control their own exact
+    spacing), but that means raw rendered Markdown, which has no
+    component wrapping each element, had no spacing between consecutive
+    headings/paragraphs/lists at all. Applied alongside .prose-measure on
+    the wrapper div around <Content />-rendered output.
+  */
+  .markdown-content > * + * {
+    margin-top: var(--space-4);
+  }
+  .markdown-content h2 {
+    margin-top: var(--space-6);
+  }
+  .markdown-content h3 {
+    margin-top: var(--space-5);
+  }
+  .markdown-content ul,
+  .markdown-content ol {
+    padding-inline-start: 1.25em;
+    list-style: revert;
+  }
+
+  /* --- Signature structural marker ("Twin Dot"), per the design system --- */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--text-eyebrow);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-cobalt);
+    display: inline-flex;
+    align-items: center;
+  }
+  .eyebrow--marigold {
+    color: var(--color-marigold);
+  }
+
+  /* --- Buttons --- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: var(--text-body);
+    line-height: 1.2;
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-control);
+    text-decoration: none;
+    text-align: center;
+    white-space: normal; /* never truncate — French labels must be able to wrap */
+    min-height: 44px; /* touch-target floor, per accessibility requirements */
+    border: 2px solid transparent;
+    transition:
+      background-color var(--transition-base),
+      border-color var(--transition-base),
+      color var(--transition-base);
+  }
+  .btn-primary {
+    background-color: var(--color-ink-navy);
+    border-color: var(--color-ink-navy);
+    color: var(--color-paper);
+  }
+  .btn-primary:hover {
+    background-color: var(--color-cobalt);
+    border-color: var(--color-cobalt);
+  }
+  .btn-secondary {
+    background-color: transparent;
+    border-color: var(--color-ink-navy);
+    border-width: 1.5px;
+    color: var(--color-ink-navy);
+  }
+  .btn-secondary:hover {
+    background-color: rgb(13 27 42 / 8%);
+  }
+  .btn-tertiary {
+    background: none;
+    border: none;
+    color: var(--color-cobalt);
+    padding: var(--space-2) 0;
+    min-height: auto;
+    text-decoration: none;
+  }
+  .btn-tertiary:hover {
+    text-decoration: underline;
+  }
+
+  /* --- Badge (e.g., the AI Services "New" tag) --- */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background-color: rgb(217 142 41 / 15%);
+    color: var(--color-marigold);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-pill);
+    white-space: normal;
+  }
+
+  /* --- Cards (base — ServiceCard/PortfolioCard/etc. extend this later) --- */
+  .card {
+    background-color: var(--color-paper);
+    border: var(--border-thin);
+    border-radius: var(--radius-card);
+    padding: var(--space-4);
+    box-shadow: none;
+    transition:
+      box-shadow var(--transition-base),
+      border-color var(--transition-base),
+      transform var(--transition-base);
+  }
+  .card:hover {
+    box-shadow: var(--shadow-hover);
+    border-color: var(--color-cobalt);
+    transform: translateY(-2px);
+  }
+
+  /* --- Forms --- */
+  .form-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--color-graphite);
+    display: block;
+    margin-bottom: var(--space-1);
+  }
+  .form-input,
+  .form-select,
+  .form-textarea {
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    color: var(--color-ink-navy);
+    background-color: var(--color-paper);
+    border: var(--border-thin);
+    border-radius: var(--radius-control);
+    padding: var(--space-2) var(--space-3);
+    min-height: 44px;
+    transition: border-color var(--transition-base);
+  }
+  .form-textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+  .form-input:focus-visible,
+  .form-select:focus-visible,
+  .form-textarea:focus-visible {
+    border-color: var(--color-cobalt);
+    outline: var(--border-focus);
+    outline-offset: 1px;
+  }
+  .form-error {
+    color: var(--color-clay);
+    font-size: var(--text-body-sm);
+    margin-top: var(--space-1);
+  }
+  .form-success {
+    color: var(--color-teal);
+    font-size: var(--text-body-sm);
+    margin-top: var(--space-1);
+  }
+
+  /* --- Navigation & footer link treatments (tokens only — no Header/Footer markup yet) --- */
+  .nav-link {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: var(--text-body);
+    color: var(--color-ink-navy);
+    text-decoration: none;
+    padding: var(--space-2) var(--space-3);
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    white-space: normal;
+  }
+  .nav-link:hover {
+    color: var(--color-cobalt);
+  }
+
+  .footer-link {
+    font-family: var(--font-body);
+    font-size: var(--text-body-sm);
+    color: var(--color-cloud);
+    text-decoration: none;
+  }
+  .footer-link:hover {
+    color: var(--color-cobalt);
+  }
+
+  /*
+    Dark-surface context (the footer and the mobile menu overlay are the
+    only two places the design system puts a large Ink Navy background) —
+    a scoping class rather than a separate theme system, since the brand
+    has exactly one dark surface, not a toggleable dark mode.
+  */
+  .theme-dark {
+    background-color: var(--color-ink-navy);
+    color: var(--color-cloud);
+  }
+  .theme-dark a {
+    color: var(--color-cloud);
+  }
+  .theme-dark a:hover {
+    color: var(--color-cobalt);
+  }
+  .theme-dark .nav-link {
+    color: var(--color-cloud);
+  }
+}

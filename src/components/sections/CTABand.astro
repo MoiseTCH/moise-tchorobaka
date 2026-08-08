@@ -1,0 +1,31 @@
+---
+import Button from '../ui/Button.astro';
+import Eyebrow from '../ui/Eyebrow.astro';
+
+export interface Props {
+  eyebrow?: string;
+  heading: string;
+  body?: string;
+  ctaLabel: string;
+  ctaHref: string;
+  theme?: 'light' | 'dark';
+}
+
+const { eyebrow, heading, body, ctaLabel, ctaHref, theme = 'dark' } = Astro.props;
+const themeClass = theme === 'dark' ? 'theme-dark' : 'border border-mist';
+---
+
+<div class={`${themeClass} rounded-card p-6 text-center md:p-8`}>
+  {eyebrow && (
+    <Eyebrow as="p" class="justify-center">
+      {eyebrow}
+    </Eyebrow>
+  )}
+  <h2 class="text-h2 mt-2">{heading}</h2>
+  {body && <p class="prose-measure mx-auto mt-3 text-body-lg">{body}</p>}
+  <div class="mt-5">
+    <Button href={ctaHref} variant="primary">
+      {ctaLabel}
+    </Button>
+  </div>
+</div>

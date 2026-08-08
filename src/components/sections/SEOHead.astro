@@ -1,0 +1,75 @@
+---
+import type { Locale } from '../../i18n/config';
+import { buildHreflangLinks, type HreflangLink } from '../../i18n/seo';
+
+/*
+  A <head>-fragment component, included inside BaseLayout's <head>. Every
+  value is passed in by the caller; nothing here is hardcoded per-page
+  content.
+
+  STAGE 9 FIX: canonical/hreflang/og:url now resolve to ABSOLUTE URLs via
+  Astro.site, not the root-relative paths this component received before.
+  Relative canonical/hreflang values are technically spec-legal, but
+  Google's own guidance recommends absolute URLs to avoid ambiguity — this
+  was a real gap, not a style preference, and is fixed here in one place
+  rather than in every page template that calls this component.
+
+  IMPORTANT: Astro.site currently resolves to the placeholder domain set
+  in astro.config.mjs ("https://www.moisetchorobaka.com"). Every absolute
+  URL this component emits will use that placeholder until the real
+  production domain is configured there — see the Stage 8/9 report's
+  "Production Domain" section for the full list of what depends on it.
+*/
+export interface Props {
+  title: string;
+  description?: string;
+  canonicalUrl: string;
+  locale: Locale;
+  /** Known URL for each locale that actually has this page/entry — omit a locale entirely if no translation exists yet. */
+  urlsByLocale: Partial<Record<Locale, string>>;
+  socialImage?: string;
+}
+
+const { title, description, canonicalUrl, locale, urlsByLocale, socialImage } = Astro.props;
+
+function toAbsolute(path: string): string {
+  return Astro.site ? new URL(path, Astro.site).href : path;
+}
+
+const absoluteCanonical = toAbsolute(canonicalUrl);
+const hreflangLinks: HreflangLink[] = buildHreflangLinks(urlsByLocale).map((link) => ({
+  ...link,
+  href: toAbsolute(link.href),
+}));
+const absoluteSocialImage = socialImage ? toAbsolute(socialImage) : undefined;
+
+// og:locale target market, per your confirmation: Francophone Africa.
+// There is no single ISO/OG locale code covering "Francophone Africa" as
+// a whole region — og:locale expects one specific language_TERRITORY
+// pair. fr_CI (Côte d'Ivoire) is used here as a reasonable representative
+// choice for a broad Francophone West/Central African audience, since
+// it's one of the more commonly recognized codes in this space. This is
+// a one-line change (below) if a different specific country becomes the
+// primary target later. Note this only affects this one metadata value —
+// the actual page copy was already written in neutral, formal French
+// without France-specific idioms, so no content rewrite was needed for
+// this market shift.
+const ogLocale = locale === 'fr' ? 'fr_CI' : 'en_US';
+---
+
+<title>{title}</title>
+{description && <meta name="description" content={description} />}
+<link rel="canonical" href={absoluteCanonical} />
+{hreflangLinks.map((link) => <link rel="alternate" hreflang={link.hreflang} href={link.href} />)}
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content={title} />
+{description && <meta property="og:description" content={description} />}
+<meta property="og:url" content={absoluteCanonical} />
+<meta property="og:locale" content={ogLocale} />
+{absoluteSocialImage && <meta property="og:image" content={absoluteSocialImage} />}
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+{description && <meta name="twitter:description" content={description} />}
+{absoluteSocialImage && <meta name="twitter:image" content={absoluteSocialImage} />}

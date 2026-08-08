@@ -1,0 +1,9 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# No redirects/functions are configured — this is a fully static site.
+# The Contact and Get a Quote forms (src/lib/formSubmit.ts) rely on
+# Netlify's automatic static-form detection at build time, which needs
+# no configuration here — it reads the data-netlify="true" attribute
+# already present on both <form> elements.

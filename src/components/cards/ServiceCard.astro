@@ -1,0 +1,34 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Card from './Card.astro';
+import Badge from '../ui/Badge.astro';
+import Icon from '../ui/Icon.astro';
+
+export interface Props {
+  service: CollectionEntry<'services'>;
+  href: string;
+  learnMoreLabel: string;
+  newBadgeLabel?: string;
+}
+
+const { service, href, learnMoreLabel, newBadgeLabel } = Astro.props;
+const { title, short_description, tier, accent_color, icon } = service.data;
+
+// Tailwind reads the `marigold`/`cobalt` colors directly from the design
+// tokens (see tailwind.config.mjs) — no new CSS needed for the
+// per-service accent-on-hover behavior specified in the design system.
+const hoverBorderClass = accent_color === 'marigold' ? 'hover:border-marigold' : 'hover:border-cobalt';
+const iconColorClass = accent_color === 'marigold' ? 'text-marigold' : 'text-cobalt';
+---
+
+<Card href={href} class={hoverBorderClass}>
+  <div class="flex items-center justify-between gap-2 mb-2">
+    <div class="flex items-center gap-3">
+      <Icon name={icon} class={`h-6 w-6 shrink-0 ${iconColorClass}`} />
+      <h3 class="text-h4 font-body">{title}</h3>
+    </div>
+    {tier === 'developing' && newBadgeLabel && <Badge>{newBadgeLabel}</Badge>}
+  </div>
+  <p class="text-body-sm prose-measure">{short_description}</p>
+  <span class="btn-tertiary mt-3 inline-flex" aria-hidden="true">{learnMoreLabel} →</span>
+</Card>

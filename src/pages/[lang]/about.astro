@@ -1,0 +1,82 @@
+---
+import { getEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Container from '../../components/ui/Container.astro';
+import Section from '../../components/sections/Section.astro';
+import Breadcrumbs from '../../components/sections/Breadcrumbs.astro';
+import CTABand from '../../components/sections/CTABand.astro';
+import { getLocaleStaticPaths } from '../../lib/localeParams';
+import { buildLocalizedPath } from '../../i18n/utils';
+import { resolveAlternateEntry } from '../../i18n/content-pairing';
+import { t } from '../../i18n/ui-strings';
+import { utilityPath } from '../../lib/routes';
+import type { Locale } from '../../i18n/config';
+
+export function getStaticPaths() {
+  return getLocaleStaticPaths();
+}
+
+const { lang } = Astro.params as { lang: Locale };
+
+const about = await getEntry('pages', `${lang}/about`);
+if (!about) throw new Error(`Missing about page entry for locale "${lang}"`);
+
+const { Content: AboutBody } = await about.render();
+
+const alternateEntry = await resolveAlternateEntry('pages', about.id, lang);
+const alternateLocale = lang === 'en' ? 'fr' : 'en';
+const alternateHref = alternateEntry ? buildLocalizedPath(alternateLocale, alternateEntry.data.url_slug) : null;
+
+const canonicalUrl = buildLocalizedPath(lang, about.data.url_slug);
+const urlsByLocale = {
+  en: lang === 'en' ? canonicalUrl : alternateHref ?? undefined,
+  fr: lang === 'fr' ? canonicalUrl : alternateHref ?? undefined,
+} as const;
+
+const ctaHeading = lang === 'en' ? "Let's work together." : 'Travaillons ensemble.';
+const ctaLabel = lang === 'en' ? 'Get a Quote' : 'Demander un devis';
+---
+
+<BaseLayout
+  locale={lang}
+  title={about.data.seo?.seo_title ?? about.data.title}
+  description={about.data.seo?.seo_description ?? about.data.description}
+  canonicalUrl={canonicalUrl}
+  urlsByLocale={urlsByLocale}
+  alternateHref={alternateHref}
+>
+  <Section spacing="tight">
+    <Container>
+      <Breadcrumbs items={[{ label: t(lang, 'breadcrumbHome'), href: buildLocalizedPath(lang) }, { label: about.data.title }]} />
+    </Container>
+  </Section>
+
+  <Section spacing="default">
+    <Container>
+      <div class="grid gap-8 md:grid-cols-[1fr_2fr] md:items-start">
+        {about.data.featured_image && (
+          <img
+            src={about.data.featured_image}
+            alt={about.data.image_alt ?? ''}
+            width={480}
+            height={480}
+            loading="lazy"
+            class="w-full max-w-xs rounded-card object-cover md:max-w-none"
+          />
+        )}
+        <div>
+          <h1>{about.data.hero_heading ?? about.data.title}</h1>
+          <div class="prose-measure markdown-content mt-6">
+            <AboutBody />
+          </div>
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <Section spacing="default">
+    <Container>
+      <CTABand heading={ctaHeading} ctaLabel={ctaLabel} ctaHref={utilityPath(lang, 'quote')} />
+    </Container>
+  </Section>
+</BaseLayout>

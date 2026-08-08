@@ -1,0 +1,103 @@
+---
+/*
+  A single labeled form control, covering the states the approved design
+  system specifies (Section 6): label above the field (never
+  placeholder-only), inline error below, optional helper description, and
+  a localized required-indicator supplied by the caller rather than
+  hardcoded — so this component works identically in either language.
+
+  Deliberately not building a <form> wrapper or submit handling here —
+  that belongs to the actual Contact/Quote forms in a later stage. This
+  is the reusable field primitive those forms will be built from.
+*/
+export interface SelectOption {
+  label: string;
+  value: string;
+}
+
+export interface Props {
+  type?: 'text' | 'email' | 'tel' | 'textarea' | 'select';
+  name: string;
+  label: string;
+  required?: boolean;
+  requiredLabel?: string;
+  error?: string;
+  description?: string;
+  options?: SelectOption[];
+  placeholder?: string;
+}
+
+const {
+  type = 'text',
+  name,
+  label,
+  required = false,
+  requiredLabel,
+  error,
+  description,
+  options = [],
+  placeholder,
+} = Astro.props;
+
+const fieldId = `field-${name}`;
+const descId = description ? `${fieldId}-desc` : undefined;
+const errorId = error ? `${fieldId}-error` : undefined;
+const describedBy = [descId, errorId].filter(Boolean).join(' ') || undefined;
+---
+
+<div class="flex flex-col gap-1">
+  <label for={fieldId} class="form-label">
+    {label}
+    {required && requiredLabel && <span class="text-clay"> ({requiredLabel})</span>}
+  </label>
+
+  {description && (
+    <p id={descId} class="text-body-sm text-graphite">
+      {description}
+    </p>
+  )}
+
+  {
+    type === 'textarea' ? (
+      <textarea
+        id={fieldId}
+        name={name}
+        class="form-textarea"
+        required={required}
+        placeholder={placeholder}
+        aria-describedby={describedBy}
+        aria-invalid={error ? 'true' : undefined}
+      />
+    ) : type === 'select' ? (
+      <select
+        id={fieldId}
+        name={name}
+        class="form-select"
+        required={required}
+        aria-describedby={describedBy}
+        aria-invalid={error ? 'true' : undefined}
+      >
+        {options.map((opt) => (
+          <option value={opt.value}>{opt.label}</option>
+        ))}
+      </select>
+    ) : (
+      <input
+        id={fieldId}
+        type={type}
+        name={name}
+        class="form-input"
+        required={required}
+        placeholder={placeholder}
+        aria-describedby={describedBy}
+        aria-invalid={error ? 'true' : undefined}
+      />
+    )
+  }
+
+  {error && (
+    <p id={errorId} class="form-error" role="alert">
+      {error}
+    </p>
+  )}
+</div>

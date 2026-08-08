@@ -1,0 +1,141 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Container from '../../components/ui/Container.astro';
+import Section from '../../components/sections/Section.astro';
+import Breadcrumbs from '../../components/sections/Breadcrumbs.astro';
+import FormField from '../../components/ui/FormField.astro';
+import Button from '../../components/ui/Button.astro';
+import { getLocaleStaticPaths } from '../../lib/localeParams';
+import { buildLocalizedPath } from '../../i18n/utils';
+import { t } from '../../i18n/ui-strings';
+import { utilityPath } from '../../lib/routes';
+import { getServicesByLocale } from '../../lib/content';
+import type { Locale } from '../../i18n/config';
+
+export function getStaticPaths() {
+  return getLocaleStaticPaths();
+}
+
+const { lang } = Astro.params as { lang: Locale };
+const services = await getServicesByLocale(lang);
+
+const alternateHref = utilityPath(lang === 'en' ? 'fr' : 'en', 'quote');
+const canonicalUrl = utilityPath(lang, 'quote');
+const urlsByLocale = { en: utilityPath('en', 'quote'), fr: utilityPath('fr', 'quote') } as const;
+
+const heading = lang === 'en' ? 'Get a Quote' : 'Demander un devis';
+const description =
+  lang === 'en'
+    ? 'Request a quote for translation, language training, CV writing, a website, or AI training.'
+    : "Demandez un devis pour une traduction, des cours de langue, un CV, un site web ou une formation à l'IA.";
+const reassurance =
+  lang === 'en'
+    ? "No obligation — you'll get a clear quote or a next step, usually within a day or two."
+    : "Sans engagement — vous recevrez un devis clair ou une prochaine étape, généralement sous un jour ou deux.";
+const serviceLabel = lang === 'en' ? 'Which service?' : 'Quel service ?';
+const nameLabel = lang === 'en' ? 'Name' : 'Nom';
+const emailLabel = lang === 'en' ? 'Email' : 'E-mail';
+const languagePairLabel = lang === 'en' ? 'Language pair (if relevant)' : 'Combinaison de langues (si pertinent)';
+const timelineLabel = lang === 'en' ? 'Deadline or timeline' : 'Délai souhaité';
+const descriptionLabel = lang === 'en' ? 'Briefly describe what you need' : 'Décrivez brièvement votre besoin';
+const requiredLabel = t(lang, 'required');
+const submitLabel = lang === 'en' ? 'Send Request' : 'Envoyer la demande';
+const sendingLabel = lang === 'en' ? 'Sending…' : 'Envoi en cours…';
+const successMessage =
+  lang === 'en'
+    ? "Thanks — your request has been sent. I'll reply with a quote or next step soon."
+    : 'Merci — votre demande a bien été envoyée. Je reviendrai vers vous avec un devis ou une prochaine étape.';
+const errorMessage =
+  lang === 'en'
+    ? 'Something went wrong sending this. Please try again, or use the Contact page instead.'
+    : "Une erreur est survenue lors de l'envoi. Merci de réessayer, ou d'utiliser la page Contact.";
+
+const languagePairOptions = [
+  { label: lang === 'en' ? 'English to French' : 'Anglais vers français', value: 'en-fr' },
+  { label: lang === 'en' ? 'French to English' : 'Français vers anglais', value: 'fr-en' },
+  { label: lang === 'en' ? 'Not applicable' : 'Non applicable', value: 'na' },
+];
+
+const serviceOptions = services.map((s) => ({
+  label: s.data.title,
+  value: s.id.split('/').slice(1).join('/'),
+}));
+---
+
+<BaseLayout locale={lang} title={`${heading} | Moïse Tchorobaka`} description={description} canonicalUrl={canonicalUrl} urlsByLocale={urlsByLocale} alternateHref={alternateHref}>
+  <Section spacing="tight">
+    <Container>
+      <Breadcrumbs items={[{ label: t(lang, 'breadcrumbHome'), href: buildLocalizedPath(lang) }, { label: heading }]} />
+    </Container>
+  </Section>
+
+  <Section spacing="default">
+    <Container>
+      <div class="mx-auto max-w-[60ch]">
+        <h1>{heading}</h1>
+        <p class="prose-measure mt-4 text-body-sm text-graphite">{reassurance}</p>
+
+        <!--
+          Netlify Forms convention — see src/lib/formSubmit.ts for the
+          full integration note. The service dropdown is pre-selected
+          client-side from a ?service= query parameter when a visitor
+          arrives from a specific service page's CTA (see
+          [lang]/services/[slug].astro).
+        -->
+        <form
+          class="mt-8 flex flex-col gap-4"
+          data-form="quote"
+          name="quote"
+          method="POST"
+          data-netlify="true"
+          netlify-honeypot="bot-field"
+          data-sending-label={sendingLabel}
+          data-success-message={successMessage}
+          data-error-message={errorMessage}
+        >
+          <input type="hidden" name="form-name" value="quote" />
+          <p class="hidden">
+            <label>Don't fill this out if you're human: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
+          </p>
+          <FormField type="select" name="service" label={serviceLabel} required requiredLabel={requiredLabel} options={serviceOptions} />
+          <FormField type="text" name="name" label={nameLabel} required requiredLabel={requiredLabel} />
+          <FormField type="email" name="email" label={emailLabel} required requiredLabel={requiredLabel} />
+          <FormField type="select" name="language_pair" label={languagePairLabel} options={languagePairOptions} />
+          <FormField type="text" name="timeline" label={timelineLabel} />
+          <FormField type="textarea" name="description" label={descriptionLabel} required requiredLabel={requiredLabel} />
+          <div>
+            <Button type="submit" variant="primary">{submitLabel}</Button>
+          </div>
+          <p data-form-status aria-live="polite" class="text-body-sm"></p>
+        </form>
+      </div>
+    </Container>
+  </Section>
+</BaseLayout>
+
+<script>
+  import { initFormHandler } from '../../lib/formSubmit';
+
+  // Progressive enhancement only — the form works without this. If a
+  // ?service=<slug> query param is present (set by a service page's CTA
+  // link), pre-select the matching option in the service dropdown.
+  const params = new URLSearchParams(window.location.search);
+  const preselect = params.get('service');
+  if (preselect) {
+    const select = document.querySelector<HTMLSelectElement>('select[name="service"]');
+    if (select) {
+      const match = Array.from(select.options).find((opt) => opt.value === preselect);
+      if (match) select.value = preselect;
+    }
+  }
+
+  const form = document.querySelector<HTMLFormElement>('[data-form="quote"]');
+  const status = document.querySelector<HTMLElement>('[data-form-status]');
+  if (form && status) {
+    initFormHandler(form, status, {
+      sendingLabel: form.dataset.sendingLabel ?? 'Sending…',
+      successMessage: form.dataset.successMessage ?? '',
+      errorMessage: form.dataset.errorMessage ?? '',
+    });
+  }
+</script>

@@ -1,0 +1,19 @@
+---
+export interface Props {
+  theme?: 'light' | 'dark';
+  spacing?: 'default' | 'tight';
+  class?: string;
+  as?: string;
+}
+
+const { theme = 'light', spacing = 'default', class: className = '', as: Tag = 'section' } = Astro.props;
+
+const themeClass = theme === 'dark' ? 'theme-dark' : '';
+// space-6/space-7 from tokens.css — mobile/desktop section rhythm per the
+// approved design system's spacing scale (Section 12).
+const spacingClass = spacing === 'tight' ? 'py-6 md:py-7' : 'py-7 md:py-8';
+---
+
+<Tag class={`${themeClass} ${spacingClass} ${className}`.trim()}>
+  <slot />
+</Tag>

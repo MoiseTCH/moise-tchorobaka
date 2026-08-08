@@ -1,0 +1,68 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Container from '../../../components/ui/Container.astro';
+import Section from '../../../components/sections/Section.astro';
+import Breadcrumbs from '../../../components/sections/Breadcrumbs.astro';
+import PortfolioCard from '../../../components/cards/PortfolioCard.astro';
+import Button from '../../../components/ui/Button.astro';
+import { getLocaleStaticPaths } from '../../../lib/localeParams';
+import { buildLocalizedPath } from '../../../i18n/utils';
+import { t } from '../../../i18n/ui-strings';
+import { utilityPath } from '../../../lib/routes';
+import { getPortfolioByLocale } from '../../../lib/content';
+import type { Locale } from '../../../i18n/config';
+
+export function getStaticPaths() {
+  return getLocaleStaticPaths();
+}
+
+const { lang } = Astro.params as { lang: Locale };
+const items = await getPortfolioByLocale(lang);
+
+const alternateHref = utilityPath(lang === 'en' ? 'fr' : 'en', 'portfolio');
+const canonicalUrl = utilityPath(lang, 'portfolio');
+const urlsByLocale = { en: utilityPath('en', 'portfolio'), fr: utilityPath('fr', 'portfolio') } as const;
+
+const heading = 'Portfolio';
+const description =
+  lang === 'en'
+    ? 'A sample of translation, language training, writing, website, and AI-related work.'
+    : "Un aperçu de travaux en traduction, cours de langues, rédaction, sites web et IA.";
+const categoryLabel = lang === 'en' ? 'Portfolio' : 'Portfolio';
+const emptyStateHeading = lang === 'en' ? 'Portfolio coming soon' : 'Portfolio à venir';
+const emptyStateBody =
+  lang === 'en'
+    ? "Work samples are being added here. In the meantime, get in touch and I'm happy to share relevant examples directly."
+    : "Des exemples de travaux seront ajoutés prochainement. En attendant, contactez-moi et je serai ravi de vous partager des exemples pertinents directement.";
+const contactLabel = lang === 'en' ? 'Get in touch' : 'Me contacter';
+---
+
+<BaseLayout locale={lang} title={`${heading} | Moïse Tchorobaka`} description={description} canonicalUrl={canonicalUrl} urlsByLocale={urlsByLocale} alternateHref={alternateHref}>
+  <Section spacing="tight">
+    <Container>
+      <Breadcrumbs items={[{ label: t(lang, 'breadcrumbHome'), href: buildLocalizedPath(lang) }, { label: heading }]} />
+    </Container>
+  </Section>
+
+  <Section spacing="default">
+    <Container>
+      <h1>{heading}</h1>
+
+      {items.length > 0 ? (
+        <div class="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {items.map((item) => (
+            <PortfolioCard item={item} href={buildLocalizedPath(lang, 'portfolio', item.data.url_slug)} categoryLabel={categoryLabel} />
+          ))}
+        </div>
+      ) : (
+        <div class="card mt-6 max-w-[60ch] text-center mx-auto p-6">
+          <p class="text-h4 font-body text-ink-navy">{emptyStateHeading}</p>
+          <p class="prose-measure mx-auto mt-2 text-body-sm">{emptyStateBody}</p>
+          <div class="mt-4">
+            <Button href={utilityPath(lang, 'contact')} variant="secondary">{contactLabel}</Button>
+          </div>
+        </div>
+      )}
+    </Container>
+  </Section>
+</BaseLayout>

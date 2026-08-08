@@ -1,0 +1,90 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Container from '../../../components/ui/Container.astro';
+import Section from '../../../components/sections/Section.astro';
+import Breadcrumbs from '../../../components/sections/Breadcrumbs.astro';
+import ServiceCard from '../../../components/cards/ServiceCard.astro';
+import { getLocaleStaticPaths } from '../../../lib/localeParams';
+import { buildLocalizedPath } from '../../../i18n/utils';
+import { t } from '../../../i18n/ui-strings';
+import { utilityPath } from '../../../lib/routes';
+import { getServicesByLocale } from '../../../lib/content';
+import type { Locale } from '../../../i18n/config';
+
+export function getStaticPaths() {
+  return getLocaleStaticPaths();
+}
+
+const { lang } = Astro.params as { lang: Locale };
+const services = await getServicesByLocale(lang);
+
+// Utility/hub route — identical path segment across locales (see
+// src/lib/routes.ts for why), so the alternate is a direct swap, not a
+// content lookup.
+const alternateHref = utilityPath(lang === 'en' ? 'fr' : 'en', 'services');
+const canonicalUrl = utilityPath(lang, 'services');
+const urlsByLocale = { en: utilityPath('en', 'services'), fr: utilityPath('fr', 'services') } as const;
+
+const title = lang === 'en' ? 'Services | Moïse Tchorobaka' : 'Services | Moïse Tchorobaka';
+const description =
+  lang === 'en'
+    ? 'Translation, language training, professional writing, websites, and AI training — five services, one practice.'
+    : "Traduction, cours de langues, rédaction professionnelle, sites web et formation à l'IA — cinq services, une seule pratique.";
+const heading = lang === 'en' ? 'Services' : 'Services';
+const learnMoreLabel = lang === 'en' ? 'Learn more' : 'En savoir plus';
+const newBadgeLabel = lang === 'en' ? 'New' : 'Nouveau';
+const primaryLabel = lang === 'en' ? 'Core services' : 'Services principaux';
+const secondaryLabel = lang === 'en' ? 'Also available' : 'Également disponibles';
+const developingLabel = lang === 'en' ? 'New' : 'Nouveau';
+
+const primary = services.filter((s) => s.data.tier === 'primary');
+const secondary = services.filter((s) => s.data.tier === 'secondary');
+const developing = services.filter((s) => s.data.tier === 'developing');
+---
+
+<BaseLayout locale={lang} title={title} description={description} canonicalUrl={canonicalUrl} urlsByLocale={urlsByLocale} alternateHref={alternateHref}>
+  <Section spacing="tight">
+    <Container>
+      <Breadcrumbs items={[{ label: t(lang, 'breadcrumbHome'), href: buildLocalizedPath(lang) }, { label: heading }]} />
+    </Container>
+  </Section>
+
+  <Section spacing="default">
+    <Container>
+      <h1>{heading}</h1>
+
+      {primary.length > 0 && (
+        <>
+          <h2 class="mt-8 text-h4 font-body">{primaryLabel}</h2>
+          <div class="mt-4 grid gap-4 md:grid-cols-2">
+            {primary.map((service) => (
+              <ServiceCard service={service} locale={lang} href={buildLocalizedPath(lang, 'services', service.data.url_slug)} learnMoreLabel={learnMoreLabel} newBadgeLabel={newBadgeLabel} />
+            ))}
+          </div>
+        </>
+      )}
+
+      {secondary.length > 0 && (
+        <>
+          <h2 class="mt-8 text-h4 font-body">{secondaryLabel}</h2>
+          <div class="mt-4 grid gap-4 md:grid-cols-2">
+            {secondary.map((service) => (
+              <ServiceCard service={service} locale={lang} href={buildLocalizedPath(lang, 'services', service.data.url_slug)} learnMoreLabel={learnMoreLabel} newBadgeLabel={newBadgeLabel} />
+            ))}
+          </div>
+        </>
+      )}
+
+      {developing.length > 0 && (
+        <>
+          <h2 class="mt-8 text-h4 font-body">{developingLabel}</h2>
+          <div class="mt-4 grid gap-4 md:grid-cols-2">
+            {developing.map((service) => (
+              <ServiceCard service={service} locale={lang} href={buildLocalizedPath(lang, 'services', service.data.url_slug)} learnMoreLabel={learnMoreLabel} newBadgeLabel={newBadgeLabel} />
+            ))}
+          </div>
+        </>
+      )}
+    </Container>
+  </Section>
+</BaseLayout>

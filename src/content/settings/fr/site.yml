@@ -1,0 +1,22 @@
+site_name: "Moïse Tchorobaka"
+descriptor_tagline: "Langue • Rédaction • Services numériques et IA"
+human_tagline: "Une communication bilingue, faite dans les règles."
+contact_email: "tchorobakam42@gmail.com"
+phone: "053 559 8583"
+# WhatsApp nécessite le format international complet (indicatif du pays +
+# numéro, sans le zéro initial) pour que le lien wa.me fonctionne — confirmé :
+# +233 (Ghana). Le numéro local « 053 559 8583 » devient +233535598583.
+whatsapp_number: "+233535598583"
+default_language: "en"
+nav_labels:
+  nav_home: "Accueil"
+  nav_services: "Services"
+  nav_portfolio: "Portfolio"
+  nav_resources: "Ressources"
+  nav_about: "À propos"
+  nav_contact: "Contact"
+  nav_quote: "Demander un devis"
+footer_text: "Traduction, cours de langues, rédaction professionnelle, sites web et aide pratique à l'IA — réunis en un seul endroit."
+social_links:
+  - platform: "LinkedIn"
+    url: "https://www.linkedin.com/in/moïse-tchorobaka-37224b219"

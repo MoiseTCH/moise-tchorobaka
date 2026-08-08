@@ -1,0 +1,22 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Card from './Card.astro';
+import Badge from '../ui/Badge.astro';
+
+export interface Props {
+  article: CollectionEntry<'articles'>;
+  href: string;
+  categoryLabel: string;
+  dateLabel: string;
+}
+
+const { article, href, categoryLabel, dateLabel } = Astro.props;
+const { title, excerpt } = article.data;
+---
+
+<Card href={href}>
+  <Badge class="mb-2">{categoryLabel}</Badge>
+  <h3 class="text-h4 font-body">{title}</h3>
+  <p class="text-body-sm prose-measure mt-1">{excerpt}</p>
+  <p class="font-mono text-mono text-graphite mt-3">{dateLabel}</p>
+</Card>

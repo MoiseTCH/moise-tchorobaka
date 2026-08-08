@@ -1,0 +1,29 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+/*
+  NOTE for the page templates that will use this component (a later
+  stage): this card renders whatever entry it's given — it does not
+  filter by `publication_status`. Filtering draft testimonials out is a
+  page/query-level concern (e.g. getCollection('testimonials', (e) =>
+  e.data.publication_status === 'published')), not this component's job.
+*/
+export interface Props {
+  testimonial: CollectionEntry<'testimonials'>;
+}
+
+const { testimonial } = Astro.props;
+const { client_name, role, organization, quote } = testimonial.data;
+const byline = [role, organization].filter(Boolean).join(', ');
+---
+
+<figure class="card">
+  <span class="font-display text-h2 text-marigold leading-none" aria-hidden="true">&ldquo;</span>
+  <blockquote class="text-body-lg prose-measure -mt-2">
+    <p>{quote}</p>
+  </blockquote>
+  <figcaption class="font-mono text-mono text-graphite mt-3">
+    {client_name}
+    {byline && `, ${byline}`}
+  </figcaption>
+</figure>

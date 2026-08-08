@@ -1,0 +1,42 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Card from './Card.astro';
+import Badge from '../ui/Badge.astro';
+
+export interface Props {
+  item: CollectionEntry<'portfolio'>;
+  href: string;
+  categoryLabel: string;
+}
+
+const { item, href, categoryLabel } = Astro.props;
+const { title, description, image, image_alt, before_text } = item.data;
+---
+
+<Card href={href}>
+  {
+    image ? (
+      // Plain <img>, not Astro's <Image> — this is a CMS-uploaded file in
+      // public/uploads/, which bypasses Astro's build-time optimizer by
+      // design (see the schema note in src/content/config.ts).
+      <img
+        src={image}
+        alt={image_alt ?? ''}
+        width={480}
+        height={320}
+        loading="lazy"
+        class="rounded-control mb-3 aspect-[3/2] w-full object-cover"
+      />
+    ) : before_text ? (
+      // Confidential translation/CV samples with no image, per the design
+      // system's Section 11 — a styled text-excerpt treatment rather than
+      // an empty or broken-looking card.
+      <div class="rounded-control mb-3 border border-mist bg-paper p-3 font-mono text-mono text-graphite">
+        <p class="line-clamp-4">{before_text}</p>
+      </div>
+    ) : null
+  }
+  <Badge class="mb-2">{categoryLabel}</Badge>
+  <h3 class="text-h4 font-body">{title}</h3>
+  <p class="text-body-sm prose-measure mt-1">{description}</p>
+</Card>

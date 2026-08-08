@@ -1,0 +1,131 @@
+---
+import '../styles/global.css';
+import { getEntry, getCollection } from 'astro:content';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+import SEOHead from '../components/sections/SEOHead.astro';
+import { t } from '../i18n/ui-strings';
+import { buildLocalizedPath } from '../i18n/utils';
+import { utilityPath } from '../lib/routes';
+import { getServicesByLocale } from '../lib/content';
+import type { Locale } from '../i18n/config';
+
+/*
+  Site-wide chrome (settings, nav labels, footer service list) is fetched
+  here, once, so individual pages don't each repeat that boilerplate.
+  Page-specific values (title, description, canonical URL, hreflang pairs,
+  and the language-switcher target) are the one thing only the calling
+  page can know correctly, so those stay as required props.
+*/
+export interface Props {
+  locale: Locale;
+  title: string;
+  description?: string;
+  canonicalUrl: string;
+  urlsByLocale: Partial<Record<Locale, string>>;
+  alternateHref: string | null;
+  socialImage?: string;
+}
+
+const { locale, title, description, canonicalUrl, urlsByLocale, alternateHref, socialImage } = Astro.props;
+
+const settings = await getEntry('settings', `${locale}/site`);
+if (!settings) {
+  throw new Error(
+    `Missing settings entry for locale "${locale}" — expected src/content/settings/${locale}/site.yml to exist.`
+  );
+}
+
+const services = await getServicesByLocale(locale);
+const legalPages = await getCollection('pages', (e) => e.id.startsWith(`${locale}/`) && e.data.page_type === 'legal');
+const legalLinks = legalPages.map((p) => ({
+  label: p.data.title,
+  href: buildLocalizedPath(locale, 'legal', p.data.url_slug),
+}));
+const navLabels = settings.data.nav_labels;
+
+const navLinks = [
+  { label: navLabels.nav_home, href: buildLocalizedPath(locale) },
+  { label: navLabels.nav_services, href: utilityPath(locale, 'services') },
+  { label: navLabels.nav_portfolio, href: utilityPath(locale, 'portfolio') },
+  { label: navLabels.nav_resources, href: utilityPath(locale, 'resources') },
+  { label: navLabels.nav_about, href: buildLocalizedPath(locale, 'about') },
+  { label: navLabels.nav_contact, href: utilityPath(locale, 'contact') },
+];
+
+const footerColumns = [
+  {
+    title: navLabels.nav_services,
+    links: services.map((s) => ({
+      label: s.data.title,
+      href: buildLocalizedPath(locale, 'services', s.data.url_slug),
+    })),
+  },
+  {
+    title: navLabels.nav_about,
+    links: [
+      { label: navLabels.nav_about, href: buildLocalizedPath(locale, 'about') },
+      { label: navLabels.nav_portfolio, href: utilityPath(locale, 'portfolio') },
+      { label: navLabels.nav_resources, href: utilityPath(locale, 'resources') },
+      { label: locale === 'en' ? 'Testimonials' : 'Témoignages', href: utilityPath(locale, 'testimonials') },
+      { label: navLabels.nav_contact, href: utilityPath(locale, 'contact') },
+    ],
+  },
+];
+
+const alternateLabel = locale === 'en' ? 'Français' : 'English';
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="/logo-icon.png" />
+    <SEOHead
+      title={title}
+      description={description}
+      canonicalUrl={canonicalUrl}
+      locale={locale}
+      urlsByLocale={urlsByLocale}
+      socialImage={socialImage}
+    />
+  </head>
+  <body>
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-[100] focus:rounded-control focus:bg-paper focus:px-4 focus:py-2 focus:text-ink-navy"
+    >
+      {t(locale, 'skipToContent')}
+    </a>
+
+    <Header
+      locale={locale}
+      siteName={settings.data.site_name}
+      navLinks={navLinks}
+      ctaLabel={navLabels.nav_quote}
+      ctaHref={utilityPath(locale, 'quote')}
+      alternateHref={alternateHref}
+      alternateLabel={alternateLabel}
+    />
+
+    <main id="main-content">
+      <slot />
+    </main>
+
+    <Footer
+      locale={locale}
+      siteName={settings.data.site_name}
+      descriptorTagline={settings.data.descriptor_tagline}
+      columns={footerColumns}
+      contactEmail={settings.data.contact_email}
+      phone={settings.data.phone}
+      whatsappNumber={settings.data.whatsapp_number}
+      socialLinks={settings.data.social_links}
+      footerText={settings.data.footer_text}
+      legalLinks={legalLinks}
+      alternateHref={alternateHref}
+      alternateLabel={alternateLabel}
+    />
+  </body>
+</html>

@@ -1,0 +1,21 @@
+/*
+  Font loading — Moïse Tchorobaka
+
+  Loaded via Google Fonts' CDN. This is a browser-time fetch, not a build-time
+  dependency, so it works in this environment despite no local network access
+  during the build itself; the browser resolves it when a visitor loads the
+  page. `display=swap` shows the fallback font stack immediately and swaps in
+  the web font once loaded, avoiding invisible text while fonts download
+  (relevant to both performance and perceived-load accessibility).
+
+  Only the weights actually used by the type scale are requested (see
+  tokens.css and global.css) to keep the request payload minimal.
+
+  Autonomous decision, flagged per Stage 2 report: self-hosting these three
+  font families (instead of the Google Fonts CDN) would remove one external
+  request and is a reasonable future performance optimization, but adds
+  build complexity that isn't justified at this stage. Isolating font-loading
+  in its own file means that swap can happen later by editing only this file.
+*/
+
+@import url("https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");

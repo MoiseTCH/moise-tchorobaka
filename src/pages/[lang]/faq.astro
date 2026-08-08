@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Container from '../../components/ui/Container.astro';
+import Section from '../../components/sections/Section.astro';
+import Breadcrumbs from '../../components/sections/Breadcrumbs.astro';
+import FAQItem from '../../components/sections/FAQItem.astro';
+import StructuredData from '../../components/sections/StructuredData.astro';
+import { faqPageSchema } from '../../lib/schema';
+import { getLocaleStaticPaths } from '../../lib/localeParams';
+import { buildLocalizedPath } from '../../i18n/utils';
+import { t } from '../../i18n/ui-strings';
+import { utilityPath } from '../../lib/routes';
+import { getFaqs } from '../../lib/content';
+import type { Locale } from '../../i18n/config';
+
+export function getStaticPaths() {
+  return getLocaleStaticPaths();
+}
+
+const { lang } = Astro.params as { lang: Locale };
+const faqs = await getFaqs(lang);
+const structuredData = faqPageSchema(faqs);
+
+const alternateHref = utilityPath(lang === 'en' ? 'fr' : 'en', 'faq');
+const canonicalUrl = utilityPath(lang, 'faq');
+const urlsByLocale = { en: utilityPath('en', 'faq'), fr: utilityPath('fr', 'faq') } as const;
+
+const heading = lang === 'en' ? 'Frequently Asked Questions' : 'Questions fréquentes';
+const description =
+  lang === 'en'
+    ? 'Answers to common questions about pricing, turnaround, and confidentiality.'
+    : 'Réponses aux questions courantes sur les tarifs, les délais et la confidentialité.';
+---
+
+<BaseLayout locale={lang} title={`${heading} | Moïse Tchorobaka`} description={description} canonicalUrl={canonicalUrl} urlsByLocale={urlsByLocale} alternateHref={alternateHref}>
+  <StructuredData schema={structuredData} />
+  <Section spacing="tight">
+    <Container>
+      <Breadcrumbs items={[{ label: t(lang, 'breadcrumbHome'), href: buildLocalizedPath(lang) }, { label: heading }]} />
+    </Container>
+  </Section>
+
+  <Section spacing="default">
+    <Container>
+      <h1>{heading}</h1>
+      <div class="mt-6 flex max-w-[70ch] flex-col gap-3">
+        {faqs.map((faq) => <FAQItem faq={faq} />)}
+      </div>
+    </Container>
+  </Section>
+</BaseLayout>

@@ -1,0 +1,326 @@
+backend:
+  name: git-gateway
+  branch: main
+
+# Relative to repo root, no leading slash. Matches the physical location
+# of public/uploads/ created in Stage 1.
+media_folder: "public/uploads"
+# Relative to the built site, leading slash required — this is the URL
+# path the browser will request, not a repo path.
+public_folder: "/uploads"
+
+# Applies globally to every collection/file below that sets `i18n: true`.
+# Verified against both the actual Stage-1 repository structure and
+# Astro's content-collection behavior (see src/content/config.ts) before
+# reuse here — not assumed by default. multiple_folders writes
+# {folder}/{locale}/{filename}.md, which is exactly the structure already
+# on disk (src/content/services/en/, src/content/services/fr/, etc.), and
+# gives Astro one collection per content type with locale-prefixed entry
+# ids — the simplest mapping available for this project.
+i18n:
+  structure: multiple_folders
+  locales: [en, fr]
+  default_locale: en
+
+collections:
+  # --------------------------------------------------------------- pages
+  - name: "pages"
+    label: "Pages"
+    description: "Freeform pages: Home, About, Start Here, Legal."
+    i18n: true
+    folder: "src/content/pages"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string", i18n: true }
+      - { label: "URL Slug", name: "url_slug", widget: "string", i18n: true,
+          hint: "Used in the web address, e.g. 'about'. Lowercase, no spaces — use hyphens." }
+      - { label: "Page Type", name: "page_type", widget: "select",
+          options: [
+            { label: "Home", value: "home" },
+            { label: "About", value: "about" },
+            { label: "Start Here", value: "start_here" },
+            { label: "Legal", value: "legal" },
+          ] }
+      - { label: "Short Description", name: "description", widget: "text", i18n: true, required: false,
+          hint: "One or two sentences shown near the top of the page and used as a fallback for search engines." }
+      - { label: "Hero Heading", name: "hero_heading", widget: "string", i18n: true, required: false }
+      - { label: "Hero Subheading", name: "hero_subheading", widget: "text", i18n: true, required: false }
+      - { label: "Body", name: "body", widget: "markdown", i18n: true }
+      - { label: "Featured Image", name: "featured_image", widget: "image", required: false }
+      - { label: "Image Alt Text", name: "image_alt", widget: "string", i18n: true, required: false,
+          hint: "Describe the image for screen readers and search engines. Write this per language." }
+      - { label: "Social Share Image", name: "social_image", widget: "image", required: false,
+          hint: "Optional. Shown when this page is shared on social media. Falls back to Featured Image if left blank." }
+      - label: "Search Engine (SEO)"
+        name: "seo"
+        widget: "object"
+        collapsed: true
+        fields:
+          - { label: "SEO Title", name: "seo_title", widget: "string", i18n: true, required: false,
+              hint: "Aim for under 60 characters. Leave blank to reuse the page title." }
+          - { label: "SEO Description", name: "seo_description", widget: "text", i18n: true, required: false,
+              hint: "Aim for under 160 characters. Leave blank to reuse the short description." }
+
+  # ------------------------------------------------------------ services
+  - name: "services"
+    label: "Services"
+    description: "The five core offerings. Add a new one here — no code changes needed."
+    i18n: true
+    folder: "src/content/services"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string", i18n: true }
+      - { label: "URL Slug", name: "url_slug", widget: "string", i18n: true,
+          hint: "Used in the web address. Can differ between English and French." }
+      - { label: "Tier", name: "tier", widget: "select",
+          hint: "Controls where this service appears in the navigation and homepage ordering.",
+          options: [
+            { label: "Primary (core offering)", value: "primary" },
+            { label: "Secondary", value: "secondary" },
+            { label: "Developing / New", value: "developing" },
+          ] }
+      - { label: "Accent Color", name: "accent_color", widget: "select",
+          options: [
+            { label: "Cobalt (technology-leaning)", value: "cobalt" },
+            { label: "Marigold (teaching-leaning)", value: "marigold" },
+          ] }
+      - { label: "Icon", name: "icon", widget: "select",
+          options: ["translation", "language_training", "cv_writing", "website", "ai_services"] }
+      - { label: "Short Description", name: "short_description", widget: "text", i18n: true,
+          hint: "One or two sentences — shown on the Services hub card." }
+      - { label: "Body", name: "body", widget: "markdown", i18n: true,
+          hint: "The main content of the service page." }
+      - { label: "Benefits", name: "benefits", widget: "list", i18n: true, required: false,
+          hint: "One line per benefit — press Enter to add another." }
+      - label: "Process Steps"
+        name: "process_steps"
+        widget: "list"
+        i18n: true
+        required: false
+        fields:
+          - { label: "Step Title", name: "step_title", widget: "string" }
+          - { label: "Step Description", name: "step_description", widget: "text" }
+      - { label: "Target Audience", name: "target_audience", widget: "list", i18n: true, required: false,
+          hint: "One line per audience, e.g. 'Small business owners'." }
+      - { label: "Pricing Note", name: "pricing_note", widget: "text", i18n: true, required: false }
+      - { label: "Call-to-Action Label", name: "cta_label", widget: "string", i18n: true,
+          hint: "e.g. 'Request a Translation Quote'" }
+      - { label: "Featured on Homepage", name: "featured", widget: "boolean", default: false }
+      - label: "Related Services"
+        name: "cross_linked_services"
+        widget: "relation"
+        collection: "services"
+        search_fields: ["title"]
+        value_field: "{{slug}}"
+        display_fields: ["title"]
+        multiple: true
+        max: 2
+        required: false
+        hint: "Pick up to 2 closely related services to cross-link from this page."
+      - { label: "Featured Image", name: "featured_image", widget: "image", required: false }
+      - { label: "Image Alt Text", name: "image_alt", widget: "string", i18n: true, required: false }
+      - label: "Search Engine (SEO)"
+        name: "seo"
+        widget: "object"
+        collapsed: true
+        fields:
+          - { label: "SEO Title", name: "seo_title", widget: "string", i18n: true, required: false }
+          - { label: "SEO Description", name: "seo_description", widget: "text", i18n: true, required: false }
+
+  # ----------------------------------------------------------- portfolio
+  - name: "portfolio"
+    label: "Portfolio"
+    description: "Work samples and case studies, shown filtered by service."
+    i18n: true
+    folder: "src/content/portfolio"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string", i18n: true }
+      - { label: "URL Slug", name: "url_slug", widget: "string", i18n: true }
+      - label: "Service Category"
+        name: "service_category"
+        widget: "relation"
+        collection: "services"
+        search_fields: ["title"]
+        value_field: "{{slug}}"
+        display_fields: ["title"]
+        hint: "Which service is this a sample of?"
+      - { label: "Description", name: "description", widget: "text", i18n: true }
+      - { label: "Body", name: "body", widget: "markdown", i18n: true, required: false,
+          hint: "Optional longer write-up shown on the project's detail view." }
+      - { label: "Tools Used", name: "tools", widget: "list", required: false,
+          hint: "Mainly relevant for Website Services projects. One line per tool." }
+      - { label: "External Link", name: "external_link", widget: "string", required: false,
+          hint: "e.g. a live website. Leave blank if not applicable." }
+      - { label: "Client Type", name: "client_type", widget: "string", i18n: true, required: false,
+          hint: "Anonymized description, e.g. 'Small business owner' — never a real client name without permission." }
+      - { label: "Before (sample text)", name: "before_text", widget: "text", i18n: true, required: false,
+          hint: "Used instead of an image for confidential translation/CV samples." }
+      - { label: "After (sample text)", name: "after_text", widget: "text", i18n: true, required: false }
+      - { label: "Image", name: "image", widget: "image", required: false }
+      - { label: "Image Alt Text", name: "image_alt", widget: "string", i18n: true, required: false }
+      - { label: "Featured on Homepage", name: "featured", widget: "boolean", default: false }
+      - label: "Search Engine (SEO)"
+        name: "seo"
+        widget: "object"
+        collapsed: true
+        required: false
+        fields:
+          - { label: "SEO Title", name: "seo_title", widget: "string", i18n: true, required: false }
+          - { label: "SEO Description", name: "seo_description", widget: "text", i18n: true, required: false }
+
+  # ------------------------------------------------------------- articles
+  - name: "articles"
+    label: "Resources / Blog"
+    description: "Blog articles. English and French do not need to be published together — see the Language field."
+    folder: "src/content/articles"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "URL Slug", name: "url_slug", widget: "string" }
+      - { label: "Language", name: "language", widget: "select", options: ["en", "fr"] }
+      - { label: "Excerpt", name: "excerpt", widget: "text",
+          hint: "One or two sentences shown on the Resources listing page." }
+      - { label: "Author", name: "author", widget: "string", default: "Moïse Tchorobaka" }
+      - { label: "Publication Date", name: "publication_date", widget: "datetime" }
+      - { label: "Pillar / Category", name: "pillar_category", widget: "select",
+          options: [
+            { label: "Translation & Language Nuance", value: "translation_nuance" },
+            { label: "Language Learning", value: "language_learning" },
+            { label: "Career & CV", value: "career_cv" },
+            { label: "Digital Presence", value: "digital_presence" },
+            { label: "Practical AI Use", value: "practical_ai" },
+          ] }
+      - label: "Related Service"
+        name: "related_service"
+        widget: "relation"
+        collection: "services"
+        search_fields: ["title"]
+        value_field: "{{slug}}"
+        display_fields: ["title"]
+        hint: "Required — every article links to one relevant service."
+      - label: "French/English Version"
+        name: "translation_of"
+        widget: "relation"
+        collection: "articles"
+        search_fields: ["title"]
+        value_field: "{{slug}}"
+        display_fields: ["title", "language"]
+        required: false
+        hint: "Only fill this in if a translated version of this article already exists."
+      - { label: "Content", name: "body", widget: "markdown" }
+      - { label: "Featured Image", name: "featured_image", widget: "image", required: false }
+      - { label: "Image Alt Text", name: "image_alt", widget: "string", required: false }
+      - label: "Search Engine (SEO)"
+        name: "seo"
+        widget: "object"
+        collapsed: true
+        required: false
+        fields:
+          - { label: "SEO Title", name: "seo_title", widget: "string", required: false }
+          - { label: "SEO Description", name: "seo_description", widget: "text", required: false }
+
+  # --------------------------------------------------------- testimonials
+  - name: "testimonials"
+    label: "Testimonials"
+    description: "Client testimonials. Add real client feedback only — set Status to Draft until you have permission to publish."
+    i18n: true
+    folder: "src/content/testimonials"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Client Name or Initials", name: "client_name", widget: "string" }
+      - { label: "Role", name: "role", widget: "string", required: false }
+      - { label: "Organization", name: "organization", widget: "string", required: false }
+      - label: "Service Category"
+        name: "service_category"
+        widget: "relation"
+        collection: "services"
+        search_fields: ["title"]
+        value_field: "{{slug}}"
+        display_fields: ["title"]
+      - { label: "Testimonial Quote", name: "quote", widget: "text", i18n: true }
+      - { label: "Client Photo", name: "photo", widget: "image", required: false }
+      - { label: "Rating (1-5)", name: "rating", widget: "number", min: 1, max: 5, required: false }
+      - { label: "Status", name: "publication_status", widget: "select",
+          options: [
+            { label: "Draft (not shown on site)", value: "draft" },
+            { label: "Published", value: "published" },
+          ],
+          default: "draft" }
+
+  # ---------------------------------------------------------------- faqs
+  - name: "faqs"
+    label: "FAQs"
+    description: "Questions and answers, shown on the FAQ page and, where tagged, on the related service page."
+    i18n: true
+    folder: "src/content/faqs"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Question", name: "question", widget: "string", i18n: true }
+      - { label: "Answer", name: "answer", widget: "markdown", i18n: true }
+      - { label: "Show on general FAQ page", name: "is_global", widget: "boolean", default: true }
+      - label: "Related Service"
+        name: "related_service"
+        widget: "relation"
+        collection: "services"
+        search_fields: ["title"]
+        value_field: "{{slug}}"
+        display_fields: ["title"]
+        required: false
+        hint: "Leave blank for general questions not tied to one service."
+      - { label: "Display Order", name: "order", widget: "number", default: 0,
+          hint: "Lower numbers appear first." }
+
+  # ------------------------------------------------------------- settings
+  - name: "settings"
+    label: "Site Settings"
+    description: "Site-wide values: navigation labels, contact details, footer, and SEO defaults."
+    files:
+      - name: "site"
+        label: "Site Settings"
+        file: "src/content/settings/site.yml"
+        i18n: true
+        fields:
+          - { label: "Site Name", name: "site_name", widget: "string" }
+          - { label: "Descriptor Tagline", name: "descriptor_tagline", widget: "string", i18n: true,
+              hint: "e.g. 'Language • Writing • Digital & AI Services'" }
+          - { label: "Human Tagline", name: "human_tagline", widget: "string", i18n: true, required: false,
+              hint: "A shorter, warmer line for the homepage hero." }
+          - { label: "Contact Email", name: "contact_email", widget: "string" }
+          - { label: "Phone", name: "phone", widget: "string", required: false }
+          - { label: "WhatsApp Number", name: "whatsapp_number", widget: "string", required: false,
+              hint: "Full international format, e.g. +33612345678. Leave blank to hide the WhatsApp contact option entirely — it will not be shown until a real number is added here." }
+          - { label: "Default Language", name: "default_language", widget: "select", options: ["en", "fr"] }
+          - label: "Navigation Labels"
+            name: "nav_labels"
+            widget: "object"
+            fields:
+              - { label: "Home", name: "nav_home", widget: "string", i18n: true }
+              - { label: "Services", name: "nav_services", widget: "string", i18n: true }
+              - { label: "Portfolio", name: "nav_portfolio", widget: "string", i18n: true }
+              - { label: "Resources", name: "nav_resources", widget: "string", i18n: true }
+              - { label: "About", name: "nav_about", widget: "string", i18n: true }
+              - { label: "Contact", name: "nav_contact", widget: "string", i18n: true }
+              - { label: "Get a Quote", name: "nav_quote", widget: "string", i18n: true }
+          - { label: "Footer Text", name: "footer_text", widget: "text", i18n: true, required: false }
+          - label: "Social Links"
+            name: "social_links"
+            widget: "list"
+            required: false
+            fields:
+              - { label: "Platform", name: "platform", widget: "string" }
+              - { label: "URL", name: "url", widget: "string" }
+          - label: "Default SEO"
+            name: "seo_defaults"
+            widget: "object"
+            collapsed: true
+            required: false
+            fields:
+              - { label: "Default SEO Title", name: "default_seo_title", widget: "string", i18n: true, required: false }
+              - { label: "Default SEO Description", name: "default_seo_description", widget: "text", i18n: true, required: false }

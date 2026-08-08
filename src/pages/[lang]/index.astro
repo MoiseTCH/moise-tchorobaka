@@ -1,0 +1,208 @@
+---
+import { getEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Container from '../../components/ui/Container.astro';
+import Section from '../../components/sections/Section.astro';
+import Eyebrow from '../../components/ui/Eyebrow.astro';
+import Button from '../../components/ui/Button.astro';
+import CTABand from '../../components/sections/CTABand.astro';
+import ServiceCard from '../../components/cards/ServiceCard.astro';
+import PortfolioCard from '../../components/cards/PortfolioCard.astro';
+import TestimonialCard from '../../components/cards/TestimonialCard.astro';
+import ArticleCard from '../../components/cards/ArticleCard.astro';
+import FAQItem from '../../components/sections/FAQItem.astro';
+import StructuredData from '../../components/sections/StructuredData.astro';
+import { personSchema, websiteSchema } from '../../lib/schema';
+import { getLocaleStaticPaths } from '../../lib/localeParams';
+import { buildLocalizedPath } from '../../i18n/utils';
+import { resolveAlternateEntry } from '../../i18n/content-pairing';
+import {
+  getServicesByLocale,
+  getFeaturedPortfolio,
+  getPublishedTestimonials,
+  getRecentArticles,
+  getFaqs,
+} from '../../lib/content';
+import { utilityPath } from '../../lib/routes';
+import type { Locale } from '../../i18n/config';
+
+export function getStaticPaths() {
+  return getLocaleStaticPaths();
+}
+
+const { lang } = Astro.params as { lang: Locale };
+
+const home = await getEntry('pages', `${lang}/home`);
+if (!home) throw new Error(`Missing home page entry for locale "${lang}"`);
+
+const settings = await getEntry('settings', `${lang}/site`);
+if (!settings) throw new Error(`Missing settings entry for locale "${lang}"`);
+
+const siteUrl = Astro.site ? Astro.site.href : '/';
+const structuredData = [
+  personSchema(settings.data.site_name, siteUrl, settings.data.descriptor_tagline),
+  websiteSchema(settings.data.site_name, siteUrl),
+];
+
+const services = await getServicesByLocale(lang);
+const featuredPortfolio = await getFeaturedPortfolio(lang, 3);
+const testimonials = (await getPublishedTestimonials(lang)).slice(0, 3);
+const recentArticles = await getRecentArticles(lang, 3);
+const globalFaqs = (await getFaqs(lang, { globalOnly: true })).slice(0, 4);
+
+// Astro 4's content-collection render API (astro ^4.15.0, per package.json)
+// is the entry's own .render() method, not the standalone render() import
+// used in later Astro versions — using the right one for the pinned version.
+const { Content: HomeBody } = await home.render();
+
+const alternateEntry = await resolveAlternateEntry('pages', home.id, lang);
+const alternateHref = alternateEntry ? buildLocalizedPath(lang === 'en' ? 'fr' : 'en') : null;
+
+const canonicalUrl = buildLocalizedPath(lang);
+const urlsByLocale = { en: '/en/', fr: '/fr/' } as const;
+
+const learnMoreLabel = lang === 'en' ? 'Learn more' : 'En savoir plus';
+const newBadgeLabel = lang === 'en' ? 'New' : 'Nouveau';
+const categoryLabel = lang === 'en' ? 'Portfolio' : 'Portfolio';
+const readMoreLabel = lang === 'en' ? 'Read more' : 'Lire la suite';
+const servicesHeading = lang === 'en' ? 'Services' : 'Services';
+const servicesEyebrow = lang === 'en' ? 'What I do' : 'Ce que je fais';
+const proofHeading = lang === 'en' ? 'Selected work' : 'Travaux sélectionnés';
+const testimonialsHeading = lang === 'en' ? 'What clients say' : 'Ce que disent les clients';
+const resourcesHeading = lang === 'en' ? 'From the blog' : 'Sur le blog';
+const faqHeading = lang === 'en' ? 'Common questions' : 'Questions fréquentes';
+const finalCtaHeading =
+  lang === 'en' ? "Let's talk about what you need." : 'Discutons de ce dont vous avez besoin.';
+const finalCtaBody =
+  lang === 'en'
+    ? 'Tell me what you\u2019re working on and I\u2019ll get back to you with a clear quote or next step.'
+    : 'Dites-moi sur quoi vous travaillez et je reviendrai vers vous avec un devis clair ou une prochaine étape.';
+const finalCtaLabel = lang === 'en' ? 'Get a Quote' : 'Demander un devis';
+const viewAllServicesLabel = lang === 'en' ? 'View all services' : 'Voir tous les services';
+const viewAllResourcesLabel = lang === 'en' ? 'View all articles' : 'Voir tous les articles';
+const viewAllFaqLabel = lang === 'en' ? 'See all FAQs' : 'Voir toutes les questions';
+---
+
+<BaseLayout
+  locale={lang}
+  title={home.data.seo?.seo_title ?? home.data.title}
+  description={home.data.seo?.seo_description ?? home.data.description}
+  canonicalUrl={canonicalUrl}
+  urlsByLocale={urlsByLocale}
+  alternateHref={alternateHref}
+>
+  <StructuredData schema={structuredData} />
+  <Section spacing="default">
+    <Container>
+      <div class="mx-auto max-w-[46ch] text-center">
+        <h1>{home.data.hero_heading}</h1>
+        {home.data.hero_subheading && <p class="prose-measure mx-auto mt-4 text-body-lg">{home.data.hero_subheading}</p>}
+        <div class="mt-6 flex justify-center">
+          <Button href={utilityPath(lang, 'quote')} variant="primary">{finalCtaLabel}</Button>
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <Section spacing="tight">
+    <Container>
+      <div class="prose-measure mx-auto text-center text-body-lg">
+        <HomeBody />
+      </div>
+    </Container>
+  </Section>
+
+  <Section spacing="default">
+    <Container>
+      <Eyebrow color="cobalt">{servicesEyebrow}</Eyebrow>
+      <h2 class="mt-2">{servicesHeading}</h2>
+      <div class="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {services.map((service) => (
+          <ServiceCard
+            service={service}
+            locale={lang}
+            href={buildLocalizedPath(lang, 'services', service.data.url_slug)}
+            learnMoreLabel={learnMoreLabel}
+            newBadgeLabel={newBadgeLabel}
+          />
+        ))}
+      </div>
+      <div class="mt-6">
+        <Button href={utilityPath(lang, 'services')} variant="text">{viewAllServicesLabel} →</Button>
+      </div>
+    </Container>
+  </Section>
+
+  {featuredPortfolio.length > 0 && (
+    <Section spacing="default">
+      <Container>
+        <h2>{proofHeading}</h2>
+        <div class="mt-6 grid gap-4 md:grid-cols-3">
+          {featuredPortfolio.map((item) => (
+            <PortfolioCard
+              item={item}
+              href={buildLocalizedPath(lang, 'portfolio', item.data.url_slug)}
+              categoryLabel={categoryLabel}
+            />
+          ))}
+        </div>
+      </Container>
+    </Section>
+  )}
+
+  {testimonials.length > 0 && (
+    <Section spacing="default" theme="dark">
+      <Container>
+        <h2 class="text-cloud">{testimonialsHeading}</h2>
+        <div class="mt-6 grid gap-4 md:grid-cols-3">
+          {testimonials.map((t) => <TestimonialCard testimonial={t} />)}
+        </div>
+      </Container>
+    </Section>
+  )}
+
+  {recentArticles.length > 0 && (
+    <Section spacing="default">
+      <Container>
+        <h2>{resourcesHeading}</h2>
+        <div class="mt-6 grid gap-4 md:grid-cols-3">
+          {recentArticles.map((article) => (
+            <ArticleCard
+              article={article}
+              href={buildLocalizedPath(lang, 'resources', article.data.url_slug)}
+              categoryLabel={article.data.pillar_category}
+              dateLabel={article.data.publication_date.toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            />
+          ))}
+        </div>
+        <div class="mt-6">
+          <Button href={utilityPath(lang, 'resources')} variant="text">{viewAllResourcesLabel} →</Button>
+        </div>
+      </Container>
+    </Section>
+  )}
+
+  {globalFaqs.length > 0 && (
+    <Section spacing="default">
+      <Container>
+        <h2>{faqHeading}</h2>
+        <div class="mt-6 flex flex-col gap-3">
+          {globalFaqs.map((faq) => <FAQItem faq={faq} />)}
+        </div>
+        <div class="mt-6">
+          <Button href={utilityPath(lang, 'faq')} variant="text">{viewAllFaqLabel} →</Button>
+        </div>
+      </Container>
+    </Section>
+  )}
+
+  <Section spacing="default">
+    <Container>
+      <CTABand heading={finalCtaHeading} body={finalCtaBody} ctaLabel={finalCtaLabel} ctaHref={utilityPath(lang, 'quote')} />
+    </Container>
+  </Section>
+</BaseLayout>

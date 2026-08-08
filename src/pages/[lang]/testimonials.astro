@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Container from '../../components/ui/Container.astro';
+import Section from '../../components/sections/Section.astro';
+import Breadcrumbs from '../../components/sections/Breadcrumbs.astro';
+import TestimonialCard from '../../components/cards/TestimonialCard.astro';
+import { getLocaleStaticPaths } from '../../lib/localeParams';
+import { buildLocalizedPath } from '../../i18n/utils';
+import { t } from '../../i18n/ui-strings';
+import { utilityPath } from '../../lib/routes';
+import { getPublishedTestimonials } from '../../lib/content';
+import type { Locale } from '../../i18n/config';
+
+export function getStaticPaths() {
+  return getLocaleStaticPaths();
+}
+
+const { lang } = Astro.params as { lang: Locale };
+const testimonials = await getPublishedTestimonials(lang);
+
+const alternateHref = utilityPath(lang === 'en' ? 'fr' : 'en', 'testimonials');
+const canonicalUrl = utilityPath(lang, 'testimonials');
+const urlsByLocale = { en: utilityPath('en', 'testimonials'), fr: utilityPath('fr', 'testimonials') } as const;
+
+const heading = lang === 'en' ? 'Testimonials' : 'Témoignages';
+const description =
+  lang === 'en'
+    ? 'What clients say about working together.'
+    : 'Ce que les clients disent de leur collaboration.';
+const emptyStateBody =
+  lang === 'en'
+    ? "Testimonials will appear here as clients share their feedback. In the meantime, feel free to get in touch with any questions about working together."
+    : "Les témoignages apparaîtront ici au fur et à mesure des retours des clients. En attendant, n'hésitez pas à me contacter pour toute question sur une collaboration.";
+const contactLabel = lang === 'en' ? 'Get in touch' : 'Me contacter';
+---
+
+<BaseLayout locale={lang} title={`${heading} | Moïse Tchorobaka`} description={description} canonicalUrl={canonicalUrl} urlsByLocale={urlsByLocale} alternateHref={alternateHref}>
+  <Section spacing="tight">
+    <Container>
+      <Breadcrumbs items={[{ label: t(lang, 'breadcrumbHome'), href: buildLocalizedPath(lang) }, { label: heading }]} />
+    </Container>
+  </Section>
+
+  <Section spacing="default">
+    <Container>
+      <h1>{heading}</h1>
+
+      {testimonials.length > 0 ? (
+        <div class="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {testimonials.map((testimonial) => <TestimonialCard testimonial={testimonial} />)}
+        </div>
+      ) : (
+        <div class="card mx-auto mt-6 max-w-[60ch] p-6 text-center">
+          <p class="prose-measure mx-auto text-body-sm">{emptyStateBody}</p>
+          <div class="mt-4">
+            <a href={utilityPath(lang, 'contact')} class="btn btn-secondary">{contactLabel}</a>
+          </div>
+        </div>
+      )}
+    </Container>
+  </Section>
+</BaseLayout>

@@ -1,0 +1,124 @@
+---
+import { getAlternateLocale } from '../../i18n/utils';
+import type { Locale } from '../../i18n/config';
+
+export interface FooterLink {
+  label: string;
+  href: string;
+}
+export interface FooterColumn {
+  title: string;
+  links: FooterLink[];
+}
+
+/*
+  Every field here maps directly onto the `settings` collection schema
+  from Stage 3 (site_name, descriptor_tagline, contact_email, phone,
+  social_links, footer_text) plus assembled navigation data — nothing
+  hardcoded, so this one component serves both languages.
+*/
+export interface Props {
+  locale: Locale;
+  siteName: string;
+  descriptorTagline: string;
+  columns: FooterColumn[];
+  contactEmail: string;
+  phone?: string;
+  whatsappNumber?: string;
+  socialLinks?: { platform: string; url: string }[];
+  legalLinks?: FooterLink[];
+  footerText?: string;
+  alternateHref: string | null;
+  alternateLabel: string;
+}
+
+const {
+  locale,
+  siteName,
+  descriptorTagline,
+  columns,
+  contactEmail,
+  phone,
+  whatsappNumber,
+  socialLinks = [],
+  legalLinks = [],
+  footerText,
+  alternateHref,
+  alternateLabel,
+} = Astro.props;
+
+const year = new Date().getFullYear();
+const alternateLocale = getAlternateLocale(locale);
+const alternateFallbackHref = alternateHref ?? `/${alternateLocale}/`;
+---
+
+<footer class="theme-dark">
+  <div class="container grid gap-8 py-8 md:grid-cols-[2fr_repeat(3,1fr)]">
+    <div>
+      <p class="font-display text-h4 text-cloud">{siteName}</p>
+      <p class="mt-2 max-w-[40ch] text-body-sm">{descriptorTagline}</p>
+      {footerText && <p class="mt-4 max-w-[40ch] text-body-sm">{footerText}</p>}
+    </div>
+
+    {columns.map((col) => (
+      <div>
+        <p class="eyebrow eyebrow--marigold mb-3">{col.title}</p>
+        <ul class="flex flex-col gap-2">
+          {col.links.map((l) => (
+            <li>
+              <a href={l.href} class="footer-link">
+                {l.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+
+    <div>
+      <p class="eyebrow eyebrow--marigold mb-3">Contact</p>
+      <ul class="flex flex-col gap-2">
+        <li>
+          <a href={`mailto:${contactEmail}`} class="footer-link">
+            {contactEmail}
+          </a>
+        </li>
+        {phone && (
+          <li>
+            <a href={`tel:${phone}`} class="footer-link">
+              {phone}
+            </a>
+          </li>
+        )}
+        {whatsappNumber && (
+          <li>
+            <a href={`https://wa.me/${whatsappNumber.replace(/[^\d]/g, '')}`} class="footer-link" target="_blank" rel="noopener noreferrer">
+              WhatsApp
+            </a>
+          </li>
+        )}
+        {socialLinks.map((s) => (
+          <li>
+            <a href={s.url} class="footer-link">
+              {s.platform}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+
+  <div class="container flex flex-wrap items-center justify-between gap-3 border-t border-[color:var(--color-graphite)] py-4 text-body-sm">
+    <p>&copy; {year} {siteName}</p>
+    <div class="flex flex-wrap items-center gap-4">
+      {legalLinks.map((l) => (
+        <a href={l.href} class="footer-link">
+          {l.label}
+        </a>
+      ))}
+      <a href={alternateFallbackHref} class="footer-link" hreflang={alternateLocale} lang={alternateLocale}>
+        {alternateLabel}
+      </a>
+    </div>
+  </div>
+</footer>

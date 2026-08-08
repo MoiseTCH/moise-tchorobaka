@@ -1,0 +1,16 @@
+---
+export interface Props {
+  schema: object | null | (object | null)[];
+}
+
+const { schema } = Astro.props;
+const schemas = (Array.isArray(schema) ? schema : [schema]).filter((s): s is object => s !== null);
+---
+
+{
+  schemas.map((s) => (
+    // Escaping "<" defensively — CMS-authored text theoretically could
+    // contain "</script>", which would otherwise break out of this tag.
+    <script type="application/ld+json" set:html={JSON.stringify(s).replace(/</g, '\\u003c')} />
+  ))
+}

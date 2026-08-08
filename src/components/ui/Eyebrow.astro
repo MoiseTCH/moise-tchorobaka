@@ -1,0 +1,14 @@
+---
+export interface Props {
+  color?: 'cobalt' | 'marigold';
+  as?: string;
+  class?: string;
+}
+
+const { color = 'cobalt', as: Tag = 'p', class: className = '' } = Astro.props;
+const colorClass = color === 'marigold' ? 'eyebrow eyebrow--marigold' : 'eyebrow';
+---
+
+<Tag class={`${colorClass} ${className}`.trim()}>
+  <slot />
+</Tag>

@@ -1,0 +1,22 @@
+site_name: "Moïse Tchorobaka"
+descriptor_tagline: "Language • Writing • Digital & AI Services"
+human_tagline: "Bilingual communication, done properly."
+contact_email: "tchorobakam42@gmail.com"
+phone: "053 559 8583"
+# WhatsApp needs the full international format (country code + number, no
+# leading zero) for the wa.me link to actually work — confirmed: +233
+# (Ghana). Local "053 559 8583" becomes +233535598583 (leading 0 dropped).
+whatsapp_number: "+233535598583"
+default_language: "en"
+nav_labels:
+  nav_home: "Home"
+  nav_services: "Services"
+  nav_portfolio: "Portfolio"
+  nav_resources: "Resources"
+  nav_about: "About"
+  nav_contact: "Contact"
+  nav_quote: "Get a Quote"
+footer_text: "Translation, language training, professional writing, websites, and practical AI help — all under one roof."
+social_links:
+  - platform: "LinkedIn"
+    url: "https://www.linkedin.com/in/moïse-tchorobaka-37224b219"

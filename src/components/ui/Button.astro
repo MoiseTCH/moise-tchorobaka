@@ -1,0 +1,38 @@
+---
+export interface Props {
+  href?: string;
+  type?: 'button' | 'submit';
+  /**
+   * The design system defines exactly three visual treatments: primary,
+   * secondary, and a text-link tertiary (see the approved design system,
+   * Section 5). "outline" is accepted as an alias for "secondary" — the
+   * more common web-convention name — so it isn't a footgun for a future
+   * page author, without actually introducing a fourth visual style.
+   */
+  variant?: 'primary' | 'secondary' | 'outline' | 'text';
+  class?: string;
+}
+
+const { href, type = 'button', variant = 'primary', class: className = '' } = Astro.props;
+
+const variantClass: Record<NonNullable<Props['variant']>, string> = {
+  primary: 'btn btn-primary',
+  secondary: 'btn btn-secondary',
+  outline: 'btn btn-secondary',
+  text: 'btn btn-tertiary',
+};
+
+const classes = `${variantClass[variant]} ${className}`.trim();
+---
+
+{
+  href ? (
+    <a href={href} class={classes}>
+      <slot />
+    </a>
+  ) : (
+    <button type={type} class={classes}>
+      <slot />
+    </button>
+  )
+}
