@@ -1,10 +1,7 @@
 ---
-// Proactive fix identified this stage: with prefixDefaultLocale set to
-// true in astro.config.mjs (Stage 1), every real page lives under /en/ or
-// /fr/ — there is no page at bare "/". Without this redirect, a visitor
-// hitting the root domain would get a 404. A plain HTTP redirect (no
-// client-side JS, no flash of unstyled content) is the simplest correct
-// fix.
 import { defaultLocale } from '../i18n/config';
-return Astro.redirect(`/${defaultLocale}/`, 302);
+return new Response(null, {
+  status: 302,
+  headers: { Location: `/${defaultLocale}/` },
+});
 ---
