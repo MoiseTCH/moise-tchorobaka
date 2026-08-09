@@ -17,7 +17,7 @@ seo:
     single direct equivalent, and learn how context, tone, and culture shape
     good translation.
 ---
-\    Learning a language is more than learning vocabulary. Some words and expressions carry meanings, feelings, or cultural nuances that cannot be transferred into another language with a single equivalent.
+Learning a language is more than learning vocabulary. Some words and expressions carry meanings, feelings, or cultural nuances that cannot be transferred into another language with a single equivalent.
 English and French provide many good examples. A word may have several possible translations depending on the context, while an expression may need to be completely rephrased to sound natural.
 
 1. **“Dépaysement”**
@@ -125,7 +125,9 @@ English and French provide many good examples. A word may have several possible 
    \- tone and register 
 
    \- what sounds natural to a native speaker
-           Sometimes one word needs several words in another language. Sometimes an entire expression needs to be rephrased.
+    
+
+   Sometimes one word needs several words in another language. Sometimes an entire expression needs to be rephrased.
 
 
    The goal is not to reproduce every word. The goal is to communicate the original meaning clearly, naturally, and accurately.
