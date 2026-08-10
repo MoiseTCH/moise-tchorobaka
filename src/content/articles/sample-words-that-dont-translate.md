@@ -119,7 +119,7 @@ English and French provide many good examples. A word may have several possible 
 
    **Why direct translation often fails**
 
-   \    Good translation is not a word-for-word exercise.
+   Good translation is not a word-for-word exercise.
    A translator needs to consider:
 
    \- the context 
