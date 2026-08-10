@@ -22,6 +22,8 @@ Learning a language is more than learning vocabulary. Some words and expressions
 English and French provide many good examples. A word may have several possible translations depending on the context, while an expression may need to be completely rephrased to sound natural.
 
 1. **“Dépaysement”**
+
+
    “Dépaysement” is a particularly French word. It describes the experience of being somewhere different from your usual environment, often with a sense of discovery, change, or escape.
    There is no single English word that captures all of its meanings.
    Depending on the context, it could be translated as:
@@ -33,6 +35,8 @@ English and French provide many good examples. A word may have several possible 
    * The trip really gave me a refreshing change of scenery.
      The best translation depends on what the speaker means and how the expression is being used.
 2. **“Bon courage”**
+
+
    “Bon courage” is another expression that does not have one fixed English equivalent.
    In English, the appropriate translation depends on the situation:
 
@@ -42,6 +46,8 @@ English and French provide many good examples. A word may have several possible 
 
    A literal translation such as “good courage” would usually sound unnatural.
 3. **“Tu” and “vous”**
+
+
    French distinguishes between “tu” and “vous”. English generally uses “you” for both.
    Compare:
 
@@ -51,10 +57,10 @@ English and French provide many good examples. A word may have several possible 
      Both can be translated as:
    * Can you help me?
 
-
      The English sentence does not explicitly preserve the distinction between informal and formal address. The translator therefore needs to rely on context and, when necessary, other linguistic choices to communicate the relationship between the speakers.
 4. **“Pratique”**
-         The French word “pratique” does not always correspond to the English word “practical”.
+
+   \    The French word “pratique” does not always correspond to the English word “practical”.
    For example:
 
    * Cet appartement est très pratique.
@@ -66,9 +72,12 @@ English and French provide many good examples. A word may have several possible 
    * Having a car is convenient.
      The right translation depends on the context.
 5. **“Actuellement”**
-         “Actuellement” is a classic example of a false friend.
+
+   \    “Actuellement” is a classic example of a false friend.
    In French, it normally means: currently, at present or nowadays
    It does not normally mean “actually”.
+
+
    **For example:**
 
    * Je travaille actuellement à Lyon.
@@ -78,7 +87,8 @@ English and French provide many good examples. A word may have several possible 
      en fait, en réalité, à vrai dire...
      Understanding these differences helps learners avoid common translation mistakes.
 6. **“Avoir le cafard”**
-        French expressions can be particularly difficult to translate literally.
+
+   \    French expressions can be particularly difficult to translate literally.
 
    * J'ai le cafard.
      *does not mean:*
@@ -91,6 +101,8 @@ English and French provide many good examples. A word may have several possible 
    * I've got the blues.
      The words change, but the meaning remains.
 7. **“Manquer”**
+
+
    The verb “manquer” can also cause problems for English-speaking learners of French.
 
    * Tu me manques.
@@ -103,6 +115,8 @@ English and French provide many good examples. A word may have several possible 
    * I miss Paris.
      This is a good reminder that translation involves grammar and sentence structure as well as vocabulary.
 8. **“Esprit”**
+
+
    The French word “esprit” can have several English equivalents.
    Depending on the context, it can refer to:
    mind, spirit, wit, intelligence, mentality, attitude
