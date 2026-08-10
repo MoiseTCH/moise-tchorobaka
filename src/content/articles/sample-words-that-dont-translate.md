@@ -105,7 +105,7 @@ English and French provide many good examples. A word may have several possible 
 8. **“Esprit”**
    The French word “esprit” can have several English equivalents.
    Depending on the context, it can refer to:
-   mindspiritwitintelligencementalityattitude
+   mind, spirit, wit, intelligence, mentality, attitude
    For example:
 
    * Il a beaucoup d'esprit.
