@@ -11,6 +11,7 @@ pillar_category: translation_nuance
 related_service: translation-localization
 translation_of: ""
 featured_image: /uploads/some-words-that-dont-directly-translate.png
+image_alt: Words That Don't Translate Directly Between English and French
 seo:
   seo_title: Words That Don't Translate Directly Between English and French
   seo_description: Discover English and French words and expressions that have no
@@ -46,9 +47,12 @@ English and French provide many good examples. A word may have several possible 
 
    * Tu peux m'aider ?
    * Vous pouvez m'aider ?
-   * Both can be translated as:
+
+     Both can be translated as:
    * Can you help me?
-            The English sentence does not explicitly preserve the distinction between informal and formal address. The translator therefore needs to rely on context and, when necessary, other linguistic choices to communicate the relationship between the speakers.
+
+
+     The English sentence does not explicitly preserve the distinction between informal and formal address. The translator therefore needs to rely on context and, when necessary, other linguistic choices to communicate the relationship between the speakers.
 4. **“Pratique”**
          The French word “pratique” does not always correspond to the English word “practical”.
    For example:
@@ -80,6 +84,7 @@ English and French provide many good examples. A word may have several possible 
      *does not mean:*
    * I have the cockroach.
      It means that someone is feeling sad or low.
+
      Depending on the context, natural English alternatives include:
    * I'm feeling down.
    * I'm feeling low.
